@@ -1,0 +1,222 @@
+{
+    "metadata": {
+        "title": "Default Guidelines",
+        "author": "Ruben White",
+        "date": "2026-02-22"
+    },
+    "project": {
+        "crs": null,
+        "vrl": "",
+        "rescale_unit": null,
+        "bounds": [null, null, null, null]
+    },
+    "styles": {
+        "imshow": {
+            "default": {
+                "append_axes_kwargs": {"pad": 0.2, "position": "right", "size": 0.2},
+                "cmap": "Spectral_r"
+            },
+            "bathymetry": {
+                "inherits": "@default",
+                "cbar_kwargs": {"label": "Bathymetry [m@vrl]"},
+                "center": false,
+                "cmap": "Spectral_r"
+            },
+            "image": {
+                "rgb": "band",
+                "robust": true
+            }
+        },
+        "pcolormesh": {
+            "default": {
+                "append_axes_kwargs": {"pad": 0.2, "position": "right", "size": 0.2},
+                "cmap": "Spectral_r"
+            },
+            "bathymetry": {
+                "inherits": "@default",
+                "cbar_kwargs": {"label": "Bathymetry [m@vrl]"},
+                "center": false,
+                "cmap": "Spectral_r"
+            }
+        },
+        "contour": {
+            "default": {
+                "append_axes_kwargs": {"pad": 0.2, "position": "right", "size": 0.2},
+                "cmap": "Spectral_r"
+            },
+            "bathymetry": {
+                "inherits": "@default",
+                "cbar_kwargs": {"label": "Bathymetry [m@vrl]"},
+                "center": false,
+                "cmap": "Spectral_r"
+            }
+        },
+         "contourf": {
+            "default": {
+                "append_axes_kwargs": {"pad": 0.2, "position": "right", "size": 0.2},
+                "cmap": "Spectral_r"
+            },
+            "bathymetry": {
+                "inherits": "@default",
+                "cbar_kwargs": {"label": "Bathymetry [m@vrl]"},
+                "center": false,
+                "cmap": "Spectral_r"
+            }
+        },
+         "scatter": {
+            "default": {
+                "append_axes_kwargs": {"pad": 0.2, "position": "right", "size": 0.2},
+                "edgecolor": "none"
+            },
+            "bathymetry": {
+                "inherits": "@default",
+                "cbar_kwargs": {"label": "Bathymetry [m@vrl]"},
+                "cmap": "Spectral_r"
+            }
+        },
+        "quiver": {
+            "default": {
+                "add_guide": false,
+                "angles": "xy",
+                "append_axes_kwargs": {"pad": 0.2, "position": "right", "size": 0.2},
+                "pivot": "tail",
+                "scale_units": "xy"
+            },
+            "bathymetry": {
+                "inherits": "@default",
+                "add_guide": true,
+                "cbar_kwargs": {"label": "Bathymetry [m@vrl]"},
+                "center": false,
+                "cmap": "Spectral_r"
+            }
+        },
+        "streamplot": {
+            "default": {
+                "add_guide": false,
+                "append_axes_kwargs": {"pad": 0.2, "position": "right", "size": 0.2}
+            },
+            "bathymetry": {
+                "inherits": "@default",
+                "add_guide": true,
+                "cbar_kwargs": {"label": "Bathymetry [m@vrl]"},
+                "center": false,
+                "cmap": "Spectral_r"
+            }
+        },
+        "grid": {
+            "default": {
+                "append_axes_kwargs": {"pad": 0.2, "position": "right", "size": 0.2}
+            },
+            "grid": {
+                "color": "cyan",
+                "label": "Grid"
+            }
+        },
+        "geometries": {
+            "default": {
+                "append_axes_kwargs": {"pad": 0.2, "position": "right", "size": 0.2}
+            },
+            "aoi": {
+                "inherits": "@default",
+                "facecolor": "none",
+                "edgecolor": "black",
+                "linewidth": 1.5,
+                "label": "Area of interest"  
+            }
+        },
+        "basemap": {
+            "default": {
+                "source": "OpenStreetMap.Mapnik",
+                "zorder": -1
+            },
+            "osm": {
+                "inherits": "@default",
+                "source": "OpenStreetMap.Mapnik"
+            },
+            "satellite": {
+                "inherits": "@default",
+                "source": "Esri.WorldImagery"
+            },
+            "light": {
+                "inherits": "@default",
+                "source": "CartoDB.Positron"
+            },
+            "light_no_labels": {
+                "inherits": "@default",
+                "source": "CartoDB.PositronNoLabels"
+             },
+             "light_only_labels": {
+                "inherits": "@default",
+                "source": "CartoDB.PositronOnlyLabels"
+             },
+             "dark": {
+                "inherits": "@default",
+                "source": "CartoDB.DarkMatter"
+             },
+             "dark_no_labels": {
+                "inherits": "@default",
+                "source": "CartoDB.DarkMatterNoLabels"
+             },
+            "dark_only_labels": {
+                "inherits": "@default",
+                "source": "CartoDB.DarkMatterOnlyLabels"
+            }            
+        },
+        "explore_data": {
+            "default": {
+                "cmap": "Spectral_r"
+            },
+            "bathymetry": {
+                "inherits": "@default",
+                "cbar_kwargs": {"label": "Bathymetry [m@vrl]"},
+                "center": false,
+                "cmap": "Spectral_r"
+            },
+            "image": {
+                "robust": true
+            }
+        },
+        "explore_geometries": {
+            "default": {
+                "hover_style_kwargs": {"fillOpacity": 0.8, "weight": 2},
+                "style_kwargs": {"fillOpacity": 0.5, "weight": 1}
+                
+            }
+        },
+        "explore_basemap": {
+            "default": {
+                "source": "OpenStreetMap.Mapnik"
+            },
+            "osm": {
+                "source": "OpenStreetMap.Mapnik"
+            },
+            "satellite": {
+                "source": "Esri.WorldImagery"
+            },
+            "light": {
+                "source": "CartoDB.Positron"
+            },
+             "light_no_labels": {
+                "source": "CartoDB.PositronNoLabels"
+             },
+            "light_only_labels": {
+                "source": "CartoDB.PositronOnlyLabels"
+            },
+             "dark": {
+                "source": "CartoDB.DarkMatter"
+             },
+             "dark_no_labels": {
+                "source": "CartoDB.DarkMatterNoLabels"
+             },
+             "dark_only_labels": {
+                "source": "CartoDB.DarkMatterOnlyLabels"
+             }
+        }
+    },
+    "extents": {
+        "default": {
+            "xlim" : [null, null],
+            "ylim" : [null, null]
+        }
+    }
+}

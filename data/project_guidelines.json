@@ -1,0 +1,33 @@
+{
+    "metadata": {
+        "title": "Example Project Guidelines",
+        "author": "Ruben White",
+        "date": "2026-02-04"
+    },
+    "project": {
+        "crs": "EPSG:32631",
+        "vrl": "MSL",
+        "rescale_unit": "hm",
+        "bounds": [538000, 5825000, 557000, 5842000]
+    },
+    "styles": {
+        "imshow": {
+            "bedforms": {
+                "inherits": "@default",
+                "cmap": "RdBu_r",
+                "cbar_kwargs": {"label": "Bathymetry [m@vrl]"}
+            }
+        },
+        "basemap": {
+            "default": {
+                "attribution": ""
+            }
+        }
+    },
+    "extents": {
+        "default": {
+            "xlim": [538000, 557000],
+            "ylim": [5825000, 5842000]
+        }
+    }
+}

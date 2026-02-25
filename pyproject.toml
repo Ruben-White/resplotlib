@@ -1,0 +1,50 @@
+[project]
+name = "resplotlib"
+version = "0.0.1"
+authors = [{ name = "Ruben White" }]
+description = "Resplotlib is a library for creating resilient plots for geospatial data in Python"
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = [
+    "cmocean>=4.0.3",
+    "colorcet>=3.1.0",
+    "contextily>=1.7.0",
+    "geopandas>=1.1.2",
+    "imageio>=2.37.2",
+    "ipykernel>=7.1.0",
+    "ipyleaflet>=0.20.0",
+    "matplotlib>=3.10.8",
+    "netcdf4>=1.7.4",
+    "odc-geo>=0.5.0",
+    "opencv-python>=4.13.0.90",
+    "rioxarray>=0.21.0",
+    "xugrid>=0.14.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/rubenwhite/resplotlib"
+Issues = "https://github.com/rubenwhite/resplotlib/issues"
+
+[project.optional-dependencies]
+docs = [
+    "sphinx>=8.2.3",
+    "sphinx-autobuild>=2024.10.3",
+    "sphinx-copybutton>=0.5.2",
+    "sphinx-rtd-theme>=3.0.2",
+    "sphinxcontrib-apidoc>=0.6.0",
+    "nbconvert>=7.16.6",
+    "nbformat>=5.10.4",
+    "nbsphinx>=0.9.6",
+]
+dev = ["pytest>=8.4.0"]
+
+
+[build-system]
+requires = ["uv_build>=0.10.4,<0.11.0"]
+build-backend = "uv_build"
