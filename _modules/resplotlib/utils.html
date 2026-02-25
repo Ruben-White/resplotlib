@@ -1,0 +1,413 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>resplotlib.utils &mdash; resplotlib 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/resplotlib_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage_examples.html">Usage Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">resplotlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">resplotlib.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for resplotlib.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xugrid</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xu</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">CRS</span> <span class="k">as</span> <span class="n">pyprojCRS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rasterio.crs</span><span class="w"> </span><span class="kn">import</span> <span class="n">CRS</span> <span class="k">as</span> <span class="n">rasterioCRS</span>
+
+<span class="n">DATA_OR_CRS_TYPE</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="n">xu</span><span class="o">.</span><span class="n">UgridDataArray</span> <span class="o">|</span> <span class="n">xu</span><span class="o">.</span><span class="n">UgridDataset</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">pyprojCRS</span> <span class="o">|</span> <span class="n">rasterioCRS</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_combine_dicts</span><span class="p">(</span><span class="n">dict1</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">dict2</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Recursively combine dictionaries, prioritising dictionary 2.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dict1 (dict): First dictionary.</span>
+<span class="sd">        dict2 (dict): Second dictionary.</span>
+<span class="sd">        max_depth (int): Maximum recursion depth.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Combined dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Maximum depth reached -&gt; return dictionary 2</span>
+    <span class="k">if</span> <span class="n">max_depth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">dict2</span>
+
+    <span class="c1"># Both dictionaries are not dictionaries -&gt; return dictionary 2</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dict1</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dict2</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">dict2</span>
+
+    <span class="c1"># Dictionary 1 is not a dictionary -&gt; return dictionary 2</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dict1</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">dict2</span>
+
+    <span class="c1"># Dictionary 2 is not a dictionary -&gt; return dictionary 1</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dict2</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">dict1</span>
+
+    <span class="c1"># Both dictionaries are dictionaries -&gt; combine dictionaries</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dict1</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">dict2</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">dict_combined</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="c1"># Key not in dictionary 1 -&gt; use dictionary 2</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dict1</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">dict_combined</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">dict2</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="c1"># Key not in dictionary 2 -&gt; use dictionary 1</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dict2</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">dict_combined</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">dict1</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="c1"># Key in both dictionaries -&gt; combine dictionaries</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dict_combined</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_combine_dicts</span><span class="p">(</span><span class="n">dict1</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">dict2</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dict_combined</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_substitute_str_in_dict</span><span class="p">(</span><span class="n">dict1</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">str1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">str2</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Recursively substitutes strings in a dictionary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dict1 (dict): Dictionary to substitute strings in.</span>
+<span class="sd">        str1 (str): String to substitute.</span>
+<span class="sd">        str2 (str): String to substitute with.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary with substituted strings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Check if strings are None</span>
+    <span class="k">if</span> <span class="n">str1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">str2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">dict1</span>
+
+    <span class="c1"># Substitute string in dictionary</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dict1</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">dict1</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_substitute_str_in_dict</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">str1</span><span class="p">,</span> <span class="n">str2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">dict1</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">str1</span><span class="p">,</span> <span class="n">str2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dict1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_substitute_inherit_str_in_dicts</span><span class="p">(</span><span class="n">dict1</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Recursively apply inheritance in a dictionary of dictionaries, substituting the &quot;@inherits&quot; key with the corresponding dictionary in the same parent dictionary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dict1 (dict): Dictionary to apply inheritance in.</span>
+<span class="sd">        max_depth (int): Maximum recursion depth.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary with applied inheritance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Maximum depth reached -&gt; return dictionary</span>
+    <span class="k">if</span> <span class="n">max_depth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">dict1</span>
+
+    <span class="k">for</span> <span class="n">key1</span> <span class="ow">in</span> <span class="n">dict1</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="c1"># Check if value is a dictionary</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dict1</span><span class="p">[</span><span class="n">key1</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Recursively apply inheritance in child dictionary</span>
+        <span class="n">dict2</span> <span class="o">=</span> <span class="n">_substitute_inherit_str_in_dicts</span><span class="p">(</span><span class="n">dict1</span><span class="p">[</span><span class="n">key1</span><span class="p">],</span> <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Check if &quot;inherits&quot; key is present</span>
+        <span class="k">if</span> <span class="s2">&quot;inherits&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dict2</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Get reference and available references</span>
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">dict2</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;inherits&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)</span>
+        <span class="n">available_references</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">dict1</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">key1</span><span class="p">]</span>
+
+        <span class="c1"># Apply inheritance if reference is available</span>
+        <span class="k">if</span> <span class="n">reference</span> <span class="ow">in</span> <span class="n">available_references</span><span class="p">:</span>
+            <span class="n">dict2</span> <span class="o">=</span> <span class="n">_combine_dicts</span><span class="p">(</span><span class="n">dict1</span><span class="p">[</span><span class="n">reference</span><span class="p">],</span> <span class="n">dict2</span><span class="p">)</span>
+            <span class="n">dict2</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">dict2</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+            <span class="n">dict1</span><span class="p">[</span><span class="n">key1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dict2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;An error occurred while processing guidelines. Inheritance reference &#39;</span><span class="si">{</span><span class="n">reference</span><span class="si">}</span><span class="s2">&#39; in &#39;</span><span class="si">{</span><span class="n">key1</span><span class="si">}</span><span class="s2">&#39; not found. Available references: </span><span class="si">{</span><span class="n">available_references</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dict1</span>
+
+
+<div class="viewcode-block" id="get_crs_from_data_or_crs">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.utils.get_crs_from_data_or_crs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_crs_from_data_or_crs</span><span class="p">(</span><span class="n">data_or_crs</span><span class="p">:</span> <span class="n">DATA_OR_CRS_TYPE</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pyprojCRS</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get coordinate reference system (CRS) from data or CRS.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data_or_crs (:class:`xarray.DataArray` | :class:`xarray.Dataset` | :class:`xugrid.UgridDataArray` | :class:`xugrid.UgridDataset` | :class:`geopandas.GeoDataFrame` | :class:`pyproj.CRS` | :class:`rasterio.crs.CRS` | str | None): Data or coordinate reference system.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pyproj.CRS | None: Coordinate reference system.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get crs from data or CRS</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_or_crs</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+        <span class="n">crs</span> <span class="o">=</span> <span class="n">data_or_crs</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">crs</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_or_crs</span><span class="p">,</span> <span class="n">xu</span><span class="o">.</span><span class="n">UgridDataArray</span> <span class="o">|</span> <span class="n">xu</span><span class="o">.</span><span class="n">UgridDataset</span><span class="p">):</span>
+        <span class="n">crs</span> <span class="o">=</span> <span class="n">data_or_crs</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">crs</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_or_crs</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">):</span>
+        <span class="n">crs</span> <span class="o">=</span> <span class="n">data_or_crs</span><span class="o">.</span><span class="n">crs</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">crs</span> <span class="o">=</span> <span class="n">data_or_crs</span>
+
+    <span class="c1"># Convert the crs to a pyproj.CRS</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crs</span><span class="p">,</span> <span class="n">pyprojCRS</span><span class="p">):</span>
+        <span class="n">crs</span> <span class="o">=</span> <span class="n">crs</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crs</span><span class="p">,</span> <span class="n">rasterioCRS</span><span class="p">):</span>
+        <span class="n">crs</span> <span class="o">=</span> <span class="n">pyprojCRS</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">crs</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crs</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">crs</span> <span class="o">=</span> <span class="n">pyprojCRS</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">crs</span></div>
+
+
+
+<div class="viewcode-block" id="get_rescale_parameters">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.utils.get_rescale_parameters">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_rescale_parameters</span><span class="p">(</span>
+    <span class="n">data_or_crs</span><span class="p">:</span> <span class="n">DATA_OR_CRS_TYPE</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rescale_unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get rescale parameters from a coordinate reference system (CRS).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data_or_crs (:class:`xarray.DataArray` | :class:`xarray.Dataset` | :class:`xugrid.UgridDataArray` | :class:`xugrid.UgridDataset` | :class:`geopandas.GeoDataFrame` | :class:`pyproj.CRS` | :class:`rasterio.crs.CRS` | str | None): Data or coordinate reference system.</span>
+<span class="sd">        rescale_unit (str, optional): Desired rescale unit. Defaults to None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple[str | None, float]: Rescale unit and scale factor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Define abbreviations and scale factors</span>
+    <span class="n">UNIT_ABBREVIATIONS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;millimetre&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;centimetre&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;decimetre&quot;</span><span class="p">:</span> <span class="s2">&quot;dm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;metre&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;decametre&quot;</span><span class="p">:</span> <span class="s2">&quot;dam&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hectometre&quot;</span><span class="p">:</span> <span class="s2">&quot;hm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;kilometre&quot;</span><span class="p">:</span> <span class="s2">&quot;km&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;feet&quot;</span><span class="p">:</span> <span class="s2">&quot;ft&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;inch&quot;</span><span class="p">:</span> <span class="s2">&quot;in&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;yard&quot;</span><span class="p">:</span> <span class="s2">&quot;yd&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mile&quot;</span><span class="p">:</span> <span class="s2">&quot;mi&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nautical_mile&quot;</span><span class="p">:</span> <span class="s2">&quot;nmi&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;degree&quot;</span><span class="p">:</span> <span class="s2">&quot;deg&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;arcsecond&quot;</span><span class="p">:</span> <span class="s2">&quot;arcsec&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;arcminute&quot;</span><span class="p">:</span> <span class="s2">&quot;arcmin&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;radian&quot;</span><span class="p">:</span> <span class="s2">&quot;rad&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">SCALE_METRES</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;mm&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="s2">&quot;cm&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="s2">&quot;dm&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s2">&quot;m&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;dam&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">&quot;hm&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+        <span class="s2">&quot;km&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+        <span class="s2">&quot;ft&quot;</span><span class="p">:</span> <span class="mf">3.28084</span><span class="p">,</span>
+        <span class="s2">&quot;in&quot;</span><span class="p">:</span> <span class="mf">39.3701</span><span class="p">,</span>
+        <span class="s2">&quot;yd&quot;</span><span class="p">:</span> <span class="mf">1.09361</span><span class="p">,</span>
+        <span class="s2">&quot;mi&quot;</span><span class="p">:</span> <span class="mf">0.000621371</span><span class="p">,</span>
+        <span class="s2">&quot;nmi&quot;</span><span class="p">:</span> <span class="mf">0.000539957</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">SCALE_DEGREES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;deg&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;arcsec&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span> <span class="s2">&quot;arcmin&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">&quot;rad&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">180</span><span class="p">}</span>
+
+    <span class="c1"># Get crs from data or CRS</span>
+    <span class="n">crs</span> <span class="o">=</span> <span class="n">get_crs_from_data_or_crs</span><span class="p">(</span><span class="n">data_or_crs</span><span class="p">)</span>
+
+    <span class="c1"># Get crs unit</span>
+    <span class="n">crs_unit</span> <span class="o">=</span> <span class="n">UNIT_ABBREVIATIONS</span><span class="p">[</span><span class="n">crs</span><span class="o">.</span><span class="n">axis_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unit_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="c1"># Get rescale unit</span>
+    <span class="k">if</span> <span class="n">crs_unit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rescale_unit</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">crs_unit</span> <span class="ow">in</span> <span class="n">SCALE_METRES</span><span class="p">:</span>
+        <span class="n">rescale_unit</span> <span class="o">=</span> <span class="n">rescale_unit</span> <span class="ow">or</span> <span class="s2">&quot;km&quot;</span>
+    <span class="k">elif</span> <span class="n">crs_unit</span> <span class="ow">in</span> <span class="n">SCALE_DEGREES</span><span class="p">:</span>
+        <span class="n">rescale_unit</span> <span class="o">=</span> <span class="n">rescale_unit</span> <span class="ow">or</span> <span class="s2">&quot;deg&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CRS unit &#39;</span><span class="si">{</span><span class="n">crs_unit</span><span class="si">}</span><span class="s2">&#39; not recognised for rescaling&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Get scale factor</span>
+    <span class="k">if</span> <span class="n">rescale_unit</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">crs_unit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scale_factor</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">if</span> <span class="n">crs_unit</span> <span class="ow">in</span> <span class="n">SCALE_METRES</span> <span class="ow">and</span> <span class="n">rescale_unit</span> <span class="ow">in</span> <span class="n">SCALE_METRES</span><span class="p">:</span>
+        <span class="n">scale_factor</span> <span class="o">=</span> <span class="n">SCALE_METRES</span><span class="p">[</span><span class="n">rescale_unit</span><span class="p">]</span> <span class="o">/</span> <span class="n">SCALE_METRES</span><span class="p">[</span><span class="n">crs_unit</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">crs_unit</span> <span class="ow">in</span> <span class="n">SCALE_DEGREES</span> <span class="ow">and</span> <span class="n">rescale_unit</span> <span class="ow">in</span> <span class="n">SCALE_DEGREES</span><span class="p">:</span>
+        <span class="n">scale_factor</span> <span class="o">=</span> <span class="n">SCALE_DEGREES</span><span class="p">[</span><span class="n">rescale_unit</span><span class="p">]</span> <span class="o">/</span> <span class="n">SCALE_DEGREES</span><span class="p">[</span><span class="n">crs_unit</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot rescale from &#39;</span><span class="si">{</span><span class="n">crs_unit</span><span class="si">}</span><span class="s2">&#39; to &#39;</span><span class="si">{</span><span class="n">rescale_unit</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">rescale_unit</span><span class="p">,</span> <span class="n">scale_factor</span></div>
+
+
+
+<div class="viewcode-block" id="get_xy_labels">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.utils.get_xy_labels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_xy_labels</span><span class="p">(</span><span class="n">data_or_crs</span><span class="p">:</span> <span class="n">DATA_OR_CRS_TYPE</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">rescale_unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get x and y axis labels from a coordinate reference system (CRS).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data_or_crs (:class:`xarray.DataArray` | :class:`xarray.Dataset` | :class:`xugrid.UgridDataArray` | :class:`xugrid.UgridDataset` | :class:`geopandas.GeoDataFrame` | :class:`pyproj.CRS` | :class:`rasterio.crs.CRS` | str | None): Data or coordinate reference system.</span>
+<span class="sd">        rescale_unit (str, optional): Rescale unit. Defaults to None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple[str, str]: x and y axis labels.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get crs from data or CRS</span>
+    <span class="n">crs</span> <span class="o">=</span> <span class="n">get_crs_from_data_or_crs</span><span class="p">(</span><span class="n">data_or_crs</span><span class="p">)</span>
+
+    <span class="c1"># Rescale unit</span>
+    <span class="n">rescale_unit</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span> <span class="k">if</span> <span class="n">rescale_unit</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">rescale_unit</span>
+
+    <span class="c1"># Get x and y labels from crs</span>
+    <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">x_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">crs</span><span class="o">.</span><span class="n">axis_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">crs</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">rescale_unit</span><span class="si">}</span><span class="s2">]&quot;</span>
+        <span class="n">y_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">crs</span><span class="o">.</span><span class="n">axis_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">crs</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">rescale_unit</span><span class="si">}</span><span class="s2">]&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">x_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;x [</span><span class="si">{</span><span class="n">rescale_unit</span><span class="si">}</span><span class="s2">]&quot;</span>
+        <span class="n">y_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;y [</span><span class="si">{</span><span class="n">rescale_unit</span><span class="si">}</span><span class="s2">]&quot;</span>
+
+    <span class="k">return</span> <span class="n">x_label</span><span class="p">,</span> <span class="n">y_label</span></div>
+
+
+
+<div class="viewcode-block" id="get_center_from_bounds">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.utils.get_center_from_bounds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_center_from_bounds</span><span class="p">(</span><span class="n">bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get center from bounds.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        bounds (tuple[float, float, float, float]): Bounds (minx, miny, maxx, maxy).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple[float, float]: Center of the bounds (latitude, longitude).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">minx</span><span class="p">,</span> <span class="n">miny</span><span class="p">,</span> <span class="n">maxx</span><span class="p">,</span> <span class="n">maxy</span> <span class="o">=</span> <span class="n">bounds</span>
+    <span class="n">center_lat</span> <span class="o">=</span> <span class="p">(</span><span class="n">miny</span> <span class="o">+</span> <span class="n">maxy</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">center_lon</span> <span class="o">=</span> <span class="p">(</span><span class="n">minx</span> <span class="o">+</span> <span class="n">maxx</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">center_lat</span><span class="p">,</span> <span class="n">center_lon</span></div>
+
+
+
+<div class="viewcode-block" id="get_zoom_from_bounds">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.utils.get_zoom_from_bounds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_zoom_from_bounds</span><span class="p">(</span><span class="n">bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get approximate zoom level from bounds.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        bounds (tuple[float, float, float, float]): Bounds (minx, miny, maxx, maxy).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int: Approximate zoom level of the bounds.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">minx</span><span class="p">,</span> <span class="n">miny</span><span class="p">,</span> <span class="n">maxx</span><span class="p">,</span> <span class="n">maxy</span> <span class="o">=</span> <span class="n">bounds</span>
+    <span class="n">span</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">maxx</span> <span class="o">-</span> <span class="n">minx</span><span class="p">,</span> <span class="n">maxy</span> <span class="o">-</span> <span class="n">miny</span><span class="p">)</span>
+    <span class="n">zoom</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="mi">360</span> <span class="o">/</span> <span class="n">span</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">zoom</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

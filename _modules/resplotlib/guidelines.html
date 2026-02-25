@@ -1,0 +1,234 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>resplotlib.guidelines &mdash; resplotlib 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/resplotlib_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage_examples.html">Usage Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">resplotlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">resplotlib.guidelines</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for resplotlib.guidelines</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">html</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTML</span><span class="p">,</span> <span class="n">display</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+
+
+<div class="viewcode-block" id="Guidelines">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.guidelines.Guidelines">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Guidelines</span><span class="p">(</span><span class="n">Dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Guidelines</span>
+
+<span class="sd">    This class is a dictionary that contains the plotting guidelines. It can be initialised with a dictionary or with a json file containing the guidelines.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        *args: Arguments to initialise the dictionary.</span>
+<span class="sd">        file_path (str, optional): Path to a json file containing the guidelines. Defaults to None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialise the Guidelines.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *args: Arguments to initialise the dictionary.</span>
+<span class="sd">            file_path (str, optional): Path to a json file containing the guidelines. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If file_path is provided, read guidelines. Otherwise, initialise the dictionary with the provided arguments.</span>
+        <span class="k">if</span> <span class="n">file_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">guidelines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_guidelines</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">guidelines</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_substitute_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Substitute inherited and project properties in the guidelines.&quot;&quot;&quot;</span>
+
+        <span class="c1"># Substitute inherited properties</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_substitute_inherit_str_in_dicts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># Get project properties</span>
+        <span class="n">project_properties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
+        <span class="c1"># Substitute project properties</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">project_properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_substitute_str_in_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;@</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_read_guidelines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read guidelines from a  file containing the guidelines.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_path (str): Path to the json file containing the guidelines.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Dictionary with guidelines.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Read guidelines from a json file containing the guidelines.</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">guidelines</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">guidelines</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_show_guideline_levels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Recursively show guideline levels.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            _dict (dict): Guideline dictionary at the current level.</span>
+<span class="sd">            level (int): Current indentation level.</span>
+<span class="sd">            indent (int): Number of pixels to indent per level.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: HTML string representing the guidelines at this level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Initialize HTML string</span>
+        <span class="n">html_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="c1"># Loop through dictionary items</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">safe_key</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">html_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                &lt;details&gt;</span>
+<span class="s2">                    &lt;summary&gt;&lt;strong&gt;</span><span class="si">{</span><span class="n">safe_key</span><span class="si">}</span><span class="s2">&lt;/strong&gt;&lt;/summary&gt;</span>
+<span class="s2">                    &lt;div style=&quot;margin-left: </span><span class="si">{</span><span class="n">indent</span><span class="si">}</span><span class="s2">px&quot;&gt;</span>
+<span class="s2">                        </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_show_guideline_levels</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">indent</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">                    &lt;/div&gt;</span>
+<span class="s2">                &lt;/details&gt;</span>
+<span class="s2">                &quot;&quot;&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">safe_value</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+                <span class="n">html_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                &lt;div&gt;</span>
+<span class="s2">                    &lt;strong&gt;</span><span class="si">{</span><span class="n">safe_key</span><span class="si">}</span><span class="s2">:&lt;/strong&gt; </span><span class="si">{</span><span class="n">safe_value</span><span class="si">}</span>
+<span class="s2">                &lt;/div&gt;</span>
+<span class="s2">                &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">html_str</span>
+
+<div class="viewcode-block" id="Guidelines.show">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.guidelines.Guidelines.show">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">open</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Show guidelines.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            open (bool): Show guidelines as open or closed. Defaults to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Set open/closed state</span>
+        <span class="nb">open</span> <span class="o">=</span> <span class="s2">&quot;open&quot;</span> <span class="k">if</span> <span class="nb">open</span> <span class="k">else</span> <span class="s2">&quot;closed&quot;</span>
+
+        <span class="c1"># Set indent per level</span>
+        <span class="n">indent</span> <span class="o">=</span> <span class="mi">20</span>
+
+        <span class="c1"># Show guidelines</span>
+        <span class="n">html_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;details </span><span class="si">{</span><span class="nb">open</span><span class="si">}</span><span class="s2">&gt;</span>
+<span class="s2">            &lt;summary&gt;&lt;strong&gt;Guidelines&lt;/strong&gt;&lt;/summary&gt;</span>
+<span class="s2">            &lt;div style=&quot;margin-left: </span><span class="si">{</span><span class="n">indent</span><span class="si">}</span><span class="s2">px&quot;&gt;</span>
+<span class="s2">                </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_show_guideline_levels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">indent</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">            &lt;/div&gt;</span>
+<span class="s2">        &lt;/details&gt;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="n">html_str</span><span class="p">))</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

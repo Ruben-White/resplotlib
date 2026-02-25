@@ -1,0 +1,432 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>resplotlib.explore &mdash; resplotlib 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/resplotlib_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage_examples.html">Usage Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">resplotlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">resplotlib.explore</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for resplotlib.explore</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ipyleaflet</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">odc.geo.xr</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xugrid</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xu</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">branca</span><span class="w"> </span><span class="kn">import</span> <span class="n">colormap</span> <span class="k">as</span> <span class="n">cm</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="nb">map</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mpl_cmap_to_branca_cmap</span><span class="p">(</span><span class="n">cmap_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">256</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cm</span><span class="o">.</span><span class="n">LinearColormap</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a matplotlib colormap to a branca LinearColormap.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cmap_name (str): Name of the matplotlib colormap to convert.</span>
+<span class="sd">        n (int, optional): Number of colors to sample from the matplotlib colormap. Default is 256.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        :class:`branca.colormap.LinearColormap`: Converted Branca LinearColormap.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mpl_cmap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colormaps</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">cmap_name</span><span class="p">)</span>
+
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">to_hex</span><span class="p">(</span><span class="n">mpl_cmap</span><span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="n">cm</span><span class="o">.</span><span class="n">LinearColormap</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="explore_geojson">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.explore.explore_geojson">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">explore_geojson</span><span class="p">(</span><span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Map</span> <span class="o">|</span> <span class="nb">map</span><span class="o">.</span><span class="n">Map</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Map</span> <span class="o">|</span> <span class="nb">map</span><span class="o">.</span><span class="n">Map</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Explore a geopandas.GeoDataFrame as a GeoJSON layer on a map.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gdf (:class:`geopandas.GeoDataFrame`): GeoDataFrame to explore.</span>
+<span class="sd">        m (:class:`ipyleaflet.Map` or :class:`Map &lt;resplotlib.map.Map&gt;`): Map on which to display the GeoJSON layer.</span>
+<span class="sd">        **kwargs: Additional keyword arguments to pass to :class:`ipyleaflet.GeoJSON`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        :class:`ipyleaflet.Map` or :class:`Map &lt;resplotlib.map.Map&gt;`: Map with the GeoDataFrame added as a GeoJSON layer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Set point style to ensure circle markers are used instead of default markers</span>
+    <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;point_style&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">})</span>
+
+    <span class="c1"># Get geojson data</span>
+    <span class="n">geo_data</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">__geo_interface__</span>
+
+    <span class="c1"># Create GeoJSON layer</span>
+    <span class="n">layer</span> <span class="o">=</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">GeoJSON</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">geo_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c1"># Add layer to map</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">m</span></div>
+
+
+
+<div class="viewcode-block" id="explore_choropleth">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.explore.explore_choropleth">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">explore_choropleth</span><span class="p">(</span><span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Map</span> <span class="o">|</span> <span class="nb">map</span><span class="o">.</span><span class="n">Map</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Map</span> <span class="o">|</span> <span class="nb">map</span><span class="o">.</span><span class="n">Map</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Explore a geopandas.GeoDataFrame as a choropleth layer on a map.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gdf (:class:`geopandas.GeoDataFrame`): GeoDataFrame to explore.</span>
+<span class="sd">        m (:class:`ipyleaflet.Map` or :class:`Map &lt;resplotlib.map.Map&gt;`): Map on which to display the choropleth layer.</span>
+<span class="sd">        column (str): Column to use for the choropleth values.</span>
+<span class="sd">        **kwargs: Additional keyword arguments to pass to :class:`ipyleaflet.Choropleth`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        :class:`ipyleaflet.Map` or :class:`Map &lt;resplotlib.map.Map&gt;`: Map with the GeoDataFrame added as a choropleth layer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Set point style to ensure circle markers are used</span>
+    <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;point_style&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">})</span>
+
+    <span class="c1"># Set style callback to ensure lines are styled with the choropleth colors</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">style_callback</span><span class="p">(</span><span class="n">feature</span><span class="p">,</span> <span class="n">colormap</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">colormap</span><span class="p">(</span><span class="n">value</span><span class="p">)}</span>
+
+    <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;style_callback&quot;</span><span class="p">,</span> <span class="n">style_callback</span><span class="p">)</span>
+
+    <span class="c1"># Check if column is numeric</span>
+    <span class="k">if</span> <span class="n">gdf</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s2">&quot;biufc&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Column &#39;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&#39; must be numeric for choropleth.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Get data for choropleth</span>
+    <span class="n">geo_data</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">__geo_interface__</span>
+    <span class="n">choro_data</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+    <span class="n">colormap</span> <span class="o">=</span> <span class="n">_mpl_cmap_to_branca_cmap</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cmap&quot;</span><span class="p">,</span> <span class="s2">&quot;Spectral_r&quot;</span><span class="p">))</span>
+    <span class="n">value_min</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;vmin&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">value_max</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;vmax&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># Create choropleth layer</span>
+    <span class="n">layer</span> <span class="o">=</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Choropleth</span><span class="p">(</span>
+        <span class="n">geo_data</span><span class="o">=</span><span class="n">geo_data</span><span class="p">,</span>
+        <span class="n">choro_data</span><span class="o">=</span><span class="n">choro_data</span><span class="p">,</span>
+        <span class="n">colormap</span><span class="o">=</span><span class="n">colormap</span><span class="p">,</span>
+        <span class="n">value_min</span><span class="o">=</span><span class="n">value_min</span><span class="p">,</span>
+        <span class="n">value_max</span><span class="o">=</span><span class="n">value_max</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Add layer to map</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;legend&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;legend&quot;</span><span class="p">]:</span>
+        <span class="c1"># Create colormap control</span>
+        <span class="n">colormap_control</span> <span class="o">=</span> <span class="n">_ColormapControl</span><span class="p">(</span>
+            <span class="n">caption</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="n">column</span><span class="p">),</span>
+            <span class="n">colormap</span><span class="o">=</span><span class="n">colormap</span><span class="p">,</span>
+            <span class="n">value_min</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">value_min</span><span class="p">,</span>
+            <span class="n">value_max</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">value_max</span><span class="p">,</span>
+            <span class="n">position</span><span class="o">=</span><span class="s2">&quot;bottomright&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Add colormap control to map</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">add_control</span><span class="p">(</span><span class="n">colormap_control</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">m</span></div>
+
+
+
+<div class="viewcode-block" id="explore_gdf">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.explore.explore_gdf">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">explore_gdf</span><span class="p">(</span><span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Map</span> <span class="o">|</span> <span class="nb">map</span><span class="o">.</span><span class="n">Map</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Map</span> <span class="o">|</span> <span class="nb">map</span><span class="o">.</span><span class="n">Map</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Explore a geopandas.GeoDataFrame in an interactive map.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gdf (:class:`geopandas.GeoDataFrame`): GeoDataFrame to explore.</span>
+<span class="sd">        m (:class:`ipyleaflet.Map` or :class:`Map &lt;resplotlib.map.Map&gt;`, optional): Map on which to display the GeoDataFrame. If None, a new map will be created. Default is None.</span>
+<span class="sd">        column (str, optional): Column to use for choropleth values. If None, geometries will be plotted without a choropleth. Default is None.</span>
+<span class="sd">        **kwargs: Additional keyword arguments to pass to the underlying functions for plotting the GeoDataFrame.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        :class:`ipyleaflet.Map` or :class:`Map &lt;resplotlib.map.Map&gt;`: Map with the GeoDataFrame added as a layer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create map if not provided</span>
+    <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Map</span><span class="p">()</span>
+
+    <span class="c1"># Reproject geodataframe to EPSG:4326</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Reset index and convert to string to ensure compatibility with ipyleaflet</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">gdf</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="c1"># Set style and hover style kwargs</span>
+    <span class="k">if</span> <span class="s2">&quot;style_kwargs&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;style&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;style_kwargs&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;hover_style_kwargs&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;hover_style&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;hover_style_kwargs&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Plot geometries</span>
+    <span class="k">if</span> <span class="n">column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">explore_geojson</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">explore_choropleth</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">m</span></div>
+
+
+
+<div class="viewcode-block" id="explore_da">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.explore.explore_da">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">explore_da</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Map</span> <span class="o">|</span> <span class="nb">map</span><span class="o">.</span><span class="n">Map</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Map</span> <span class="o">|</span> <span class="nb">map</span><span class="o">.</span><span class="n">Map</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Explore a xarray.DataArray in an interactive map.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        da (:class:`xarray.DataArray`): DataArray to explore.</span>
+<span class="sd">        m (:class:`ipyleaflet.Map` or :class:`Map &lt;resplotlib.map.Map&gt;`, optional): Map on which to display the DataArray. If None, a new map will be created. Default is None.</span>
+<span class="sd">        **kwargs: Additional keyword arguments to pass to :class:`odc.geo.xr.DataArrayAccessor.add_to`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        :class:`ipyleaflet.Map` or :class:`Map &lt;resplotlib.map.Map&gt;`: Map with the DataArray added as a layer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create map if not provided</span>
+    <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Map</span><span class="p">()</span>
+
+    <span class="c1"># Set vmin and vmax to 2nd and 98th percentiles if &quot;robust&quot; is True in kwargs</span>
+    <span class="n">robust</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;robust&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;vmin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.02</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="n">robust</span> <span class="k">else</span> <span class="n">da</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;vmax&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.98</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="n">robust</span> <span class="k">else</span> <span class="n">da</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+    <span class="c1"># Convert to RGBA if data array has 3 dimensions and &quot;band&quot; is one of the dimensions with size 3</span>
+    <span class="n">rgb</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="s2">&quot;band&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">da</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;band&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span>
+    <span class="k">if</span> <span class="n">rgb</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;band&quot;</span><span class="p">)</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">odc</span><span class="o">.</span><span class="n">to_rgba</span><span class="p">(</span><span class="n">bands</span><span class="o">=</span><span class="n">da</span><span class="o">.</span><span class="n">band</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">vmin</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;vmin&quot;</span><span class="p">],</span> <span class="n">vmax</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;vmax&quot;</span><span class="p">])</span>
+
+    <span class="c1"># Change module of Map class to ipyleaflet to trick odc.add_to</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="nb">map</span><span class="o">.</span><span class="n">Map</span><span class="p">):</span>
+        <span class="n">m</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">=</span> <span class="s2">&quot;ipyleaflet&quot;</span>
+
+    <span class="c1"># Add data array to map</span>
+    <span class="n">da</span><span class="o">.</span><span class="n">odc</span><span class="o">.</span><span class="n">add_to</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;legend&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;legend&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rgb</span><span class="p">:</span>
+        <span class="c1"># Get data for colormap control</span>
+        <span class="n">caption</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">da</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;long_name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">da</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;units&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">]&quot;</span>
+        <span class="n">colormap</span> <span class="o">=</span> <span class="n">_mpl_cmap_to_branca_cmap</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cmap&quot;</span><span class="p">,</span> <span class="s2">&quot;Spectral_r&quot;</span><span class="p">))</span>
+        <span class="n">value_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;vmin&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">value_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;vmax&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Create colormap control</span>
+        <span class="n">colormap_control</span> <span class="o">=</span> <span class="n">_ColormapControl</span><span class="p">(</span>
+            <span class="n">caption</span><span class="o">=</span><span class="n">caption</span><span class="p">,</span>
+            <span class="n">colormap</span><span class="o">=</span><span class="n">colormap</span><span class="p">,</span>
+            <span class="n">value_min</span><span class="o">=</span><span class="n">value_min</span><span class="p">,</span>
+            <span class="n">value_max</span><span class="o">=</span><span class="n">value_max</span><span class="p">,</span>
+            <span class="n">position</span><span class="o">=</span><span class="s2">&quot;bottomright&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Add colormap control to map</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">add_control</span><span class="p">(</span><span class="n">colormap_control</span><span class="p">)</span>
+
+    <span class="c1"># Change module of Map class back to resplotlib</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="nb">map</span><span class="o">.</span><span class="n">Map</span><span class="p">):</span>
+        <span class="n">m</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">=</span> <span class="s2">&quot;src.resplotlib.interactive&quot;</span>
+
+    <span class="k">return</span> <span class="n">m</span></div>
+
+
+
+<div class="viewcode-block" id="explore_uda">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.explore.explore_uda">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">explore_uda</span><span class="p">(</span><span class="n">uda</span><span class="p">:</span> <span class="n">xu</span><span class="o">.</span><span class="n">UgridDataArray</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Map</span> <span class="o">|</span> <span class="nb">map</span><span class="o">.</span><span class="n">Map</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Map</span> <span class="o">|</span> <span class="nb">map</span><span class="o">.</span><span class="n">Map</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Explore a xugrid.UgridDataArray with an unstructured grid in an interactive map.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        uda (:class:`xugrid.UgridDataArray`): DataArray with an unstructured grid to explore.</span>
+<span class="sd">        m (:class:`ipyleaflet.Map` or :class:`Map &lt;resplotlib.map.Map&gt;`, optional): Map on which to display the DataArray. If None, a new map will be created. Default is None.</span>
+<span class="sd">        **kwargs: Additional keyword arguments to pass to :class:`resplotlib.explore.explore_gdf`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        :class:`ipyleaflet.Map` or :class:`Map &lt;resplotlib.map.Map&gt;`: Map with the DataArray added as a layer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Set default style kwargs to ensure filled geometries with no borders</span>
+    <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;style_kwargs&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;fillOpacity&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+
+    <span class="c1"># Create map if not provided</span>
+    <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Map</span><span class="p">()</span>
+
+    <span class="c1"># Convert uda to geodataframe</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">uda</span><span class="o">.</span><span class="n">ugrid</span><span class="o">.</span><span class="n">to_geodataframe</span><span class="p">()</span>
+
+    <span class="c1"># Plot geodataframe</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">explore_gdf</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">uda</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">m</span></div>
+
+
+
+<div class="viewcode-block" id="explore_basemap">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.explore.explore_basemap">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">explore_basemap</span><span class="p">(</span><span class="n">m</span><span class="p">:</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Map</span> <span class="o">|</span> <span class="nb">map</span><span class="o">.</span><span class="n">Map</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;OpenStreetMap.Mapnik&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Map</span> <span class="o">|</span> <span class="nb">map</span><span class="o">.</span><span class="n">Map</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add a basemap layer to an interactive map.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        m (:class:`ipyleaflet.Map` or :class:`Map &lt;resplotlib.map.Map&gt;`): Map to which to add the basemap layer.</span>
+<span class="sd">        source (str, optional): Basemap source in the format &quot;provider.layer_name&quot;. Default is &quot;OpenStreetMap.Mapnik&quot;.</span>
+<span class="sd">        **kwargs: Additional keyword arguments to pass to :class:`ipyleaflet.basemap_to_tiles`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        :class:`ipyleaflet.Map` or :class:`Map &lt;resplotlib.map.Map&gt;`: Map with the basemap layer added.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Split source string into provider and layer</span>
+    <span class="n">provider</span><span class="p">,</span> <span class="n">layer_name</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Get basemap layer</span>
+    <span class="n">layer</span> <span class="o">=</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">basemaps</span><span class="p">[</span><span class="n">provider</span><span class="p">][</span><span class="n">layer_name</span><span class="p">]</span>
+    <span class="n">layer</span> <span class="o">=</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">basemap_to_tiles</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">layer</span><span class="o">.</span><span class="n">base</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Set layer as basemap to ensure it is plotted below other layers</span>
+
+    <span class="c1"># Add basemap layer to map</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">m</span></div>
+
+
+
+<span class="c1"># Class below was adapted from ipyleaflet&#39;s ColorMapControl to allow for a slightly nicer display of the colormap</span>
+<span class="c1"># (https://ipyleaflet.readthedocs.io/en/latest/_modules/ipyleaflet/leaflet.html#ColormapControl)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">branca.colormap</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColorMap</span><span class="p">,</span> <span class="n">linear</span>  <span class="c1"># noqa: E402</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ipyleaflet</span><span class="w"> </span><span class="kn">import</span> <span class="n">WidgetControl</span>  <span class="c1"># noqa: E402</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">display</span>  <span class="c1"># noqa: E402</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ipywidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Output</span>  <span class="c1"># noqa: E402</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">traitlets</span><span class="w"> </span><span class="kn">import</span> <span class="n">CFloat</span><span class="p">,</span> <span class="n">Instance</span><span class="p">,</span> <span class="n">Unicode</span><span class="p">,</span> <span class="n">default</span>  <span class="c1"># noqa: E402</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_ColormapControl</span><span class="p">(</span><span class="n">WidgetControl</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ColormapControl class, with WidgetControl as parent class.</span>
+
+<span class="sd">    A control which contains a colormap.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    caption : str, default &#39;caption&#39;</span>
+<span class="sd">        The caption of the colormap.</span>
+<span class="sd">    colormap: branca.colormap.ColorMap instance, default linear.OrRd_06</span>
+<span class="sd">        The colormap used for the effect.</span>
+<span class="sd">    value_min : float, default 0.0</span>
+<span class="sd">        The minimal value taken by the data to be represented by the colormap.</span>
+<span class="sd">    value_max : float, default 1.0</span>
+<span class="sd">        The maximal value taken by the data to be represented by the colormap.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">caption</span> <span class="o">=</span> <span class="n">Unicode</span><span class="p">(</span><span class="s2">&quot;caption&quot;</span><span class="p">)</span>
+    <span class="n">colormap</span> <span class="o">=</span> <span class="n">Instance</span><span class="p">(</span><span class="n">ColorMap</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="n">linear</span><span class="o">.</span><span class="n">OrRd_06</span><span class="p">)</span>
+    <span class="n">value_min</span> <span class="o">=</span> <span class="n">CFloat</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">value_max</span> <span class="o">=</span> <span class="n">CFloat</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="nd">@default</span><span class="p">(</span><span class="s2">&quot;widget&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_default_widget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">widget</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="s2">&quot;40px&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;450px&quot;</span><span class="p">,</span> <span class="s2">&quot;margin&quot;</span><span class="p">:</span> <span class="s2">&quot;0px 10px&quot;</span><span class="p">})</span>  <span class="c1"># Adjusted height and width to better fit colormap</span>
+        <span class="k">with</span> <span class="n">widget</span><span class="p">:</span>
+            <span class="n">colormap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colormap</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_max</span><span class="p">)</span>
+            <span class="n">colormap</span><span class="o">.</span><span class="n">caption</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">caption</span>
+            <span class="n">display</span><span class="p">(</span><span class="n">colormap</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">widget</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

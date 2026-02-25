@@ -1,0 +1,410 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>resplotlib.map &mdash; resplotlib 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/resplotlib_logo_white.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage_examples.html">Usage Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">resplotlib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">resplotlib.map</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for resplotlib.map</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ipyleaflet</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shapely.geometry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ipywidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTML</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">resplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+
+<span class="c1"># The following CSS is used to set the background color of the Leaflet controls to white and make them fully opaque.</span>
+<span class="c1"># It does not have to be supplied anywhere but for some reason, without it, the controls are transparent.</span>
+<span class="n">css</span> <span class="o">=</span> <span class="n">HTML</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;style&gt;</span>
+<span class="s2">    .leaflet-control { </span>
+<span class="s2">        background-color: white !important; </span>
+<span class="s2">        opacity: 1 !important; </span>
+<span class="s2">    }</span>
+<span class="s2">&lt;/style&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Map">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.map.Map">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Map</span><span class="p">(</span><span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Map</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for creating an interactive map using ipyleaflet.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        drawn (bool): A flag indicating whether geometries have been drawn on the map.</span>
+<span class="sd">        style_kwargs (dict): A dictionary containing the style options for the geometries drawn on the map.</span>
+<span class="sd">        draw_control (ipyleaflet.DrawControl or ipyleaflet.GeomanDrawControl): The draw control used for drawing geometries on the map.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gdf (:class:`geopandas.GeoDataFrame`, optional): GeoDataFrame containing draw geometries to add to the map. Defaults to None.</span>
+<span class="sd">        clear_on_draw (bool, optional): Clear drawn geometries from the map when a new geometry is drawn. Defaults to False.</span>
+<span class="sd">        geoman_draw (bool, optional): Use GeomanDrawControl to draw geometries on the map. Defaults to True.</span>
+<span class="sd">        **kwargs: Additional keyword arguments to pass to :class:`ipyleaflet.Map`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_style_kwargs_red</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;fillColor&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;fillOpacity&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}</span>
+    <span class="n">_style_kwargs_green</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;fillColor&quot;</span><span class="p">:</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;fillOpacity&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}</span>
+    <span class="n">_hover_style_kwargs_red</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;fillColor&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;fillOpacity&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span> <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}</span>
+    <span class="n">_hover_style_kwargs_green</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;fillColor&quot;</span><span class="p">:</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;fillOpacity&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span> <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}</span>
+    <span class="n">_clear_on_draw</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">clear_on_draw</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">geoman_draw</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialise the map.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            gdf (gpd.GeoDataFrame, optional): GeoDataFrame containing the geometries to add to the map. Defaults to None.</span>
+<span class="sd">            clear_on_draw (bool, optional): Clear drawn geometries from the map when a new geometry is drawn. Defaults to False.</span>
+<span class="sd">            geoman_draw (bool, optional): Use GeomanDrawControl to draw geometries on the map. Defaults to True.</span>
+<span class="sd">            **kwargs: Additional keyword arguments to pass to :class:`ipyleaflet.Map`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Convert gdf to EPSG:4326</span>
+        <span class="k">if</span> <span class="n">gdf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">gdf</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get center from geometries if not provided</span>
+        <span class="k">if</span> <span class="s2">&quot;center&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">gdf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">gdf</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;center&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_center_from_bounds</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">)</span>
+
+        <span class="c1"># Get approximate zoom level from geometries if not provided</span>
+        <span class="k">if</span> <span class="s2">&quot;zoom&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">gdf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">gdf</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;zoom&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_zoom_from_bounds</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">)</span>
+
+        <span class="c1"># Set default scroll wheel zoom and layout kwargs</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;scroll_wheel_zoom&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;layout&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;100%&quot;</span><span class="p">,</span> <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="s2">&quot;600px&quot;</span><span class="p">})</span>
+
+        <span class="c1"># Initialize map superclass</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Set clear_on_draw attribute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clear_on_draw</span> <span class="o">=</span> <span class="n">clear_on_draw</span>
+
+        <span class="c1"># Add draw control</span>
+        <span class="n">draw_control_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;polyline&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;shapeOptions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_style_kwargs_red</span><span class="p">},</span>
+            <span class="s2">&quot;rectangle&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;shapeOptions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_style_kwargs_red</span><span class="p">},</span>
+            <span class="s2">&quot;polygon&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;shapeOptions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_style_kwargs_red</span><span class="p">},</span>
+            <span class="s2">&quot;circle&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;shapeOptions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_style_kwargs_red</span><span class="p">},</span>
+            <span class="s2">&quot;circlemarker&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;shapeOptions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_style_kwargs_red</span><span class="p">},</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">geoman_draw</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">draw_control</span> <span class="o">=</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">GeomanDrawControl</span><span class="p">(</span><span class="o">**</span><span class="n">draw_control_kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">draw_control</span> <span class="o">=</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">DrawControl</span><span class="p">(</span><span class="o">**</span><span class="n">draw_control_kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_control</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">draw_control</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">draw_control</span><span class="o">.</span><span class="n">on_draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handle_draw</span><span class="p">)</span>
+
+        <span class="c1"># Add draw layer (to store drawn geometries separately from draw control)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clear_on_draw</span><span class="p">:</span>
+            <span class="n">draw_layer_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;FeatureCollection&quot;</span><span class="p">,</span> <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="p">[]},</span>
+                <span class="s2">&quot;style&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_style_kwargs_green</span><span class="p">,</span>
+                <span class="s2">&quot;hover_style&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hover_style_kwargs_green</span><span class="p">,</span>
+                <span class="s2">&quot;point_style&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_style_kwargs_green</span><span class="p">,</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Drawn Geometries&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">draw_layer</span> <span class="o">=</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">GeoJSON</span><span class="p">(</span><span class="o">**</span><span class="n">draw_layer_kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">draw_layer</span><span class="p">)</span>
+
+        <span class="c1"># Add additional controls to map</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_control</span><span class="p">(</span><span class="n">ipyleaflet</span><span class="o">.</span><span class="n">FullScreenControl</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_control</span><span class="p">(</span><span class="n">ipyleaflet</span><span class="o">.</span><span class="n">LayersControl</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s2">&quot;topright&quot;</span><span class="p">))</span>
+
+        <span class="c1"># Set geometries to map</span>
+        <span class="k">if</span> <span class="n">gdf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">gdf</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_drawn_geometries</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">ipyleaflet</span><span class="o">.</span><span class="n">Widget</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">geo_json</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle draw events from the draw control.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            target (ipyleaflet.Widget): The draw control widget that triggered the event.</span>
+<span class="sd">            action (str): The type of draw event (e.g., &quot;created&quot;, &quot;edited&quot;, &quot;deleted&quot;).</span>
+<span class="sd">            geo_json (dict): The GeoJSON representation of the drawn geometry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If clear_on_draw is False, do not clear drawn geometries from map</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clear_on_draw</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Clear drawn geometries from map</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_drawn_geometries</span><span class="p">()</span>
+
+        <span class="c1"># Convert drawn geometry to GeoDataFrame</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geo_json</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">geo_json</span> <span class="o">=</span> <span class="p">[</span><span class="n">geo_json</span><span class="p">]</span>
+        <span class="n">gdf_drawn</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="o">.</span><span class="n">from_features</span><span class="p">(</span><span class="n">geo_json</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Set drawn geometry to map</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_drawn_geometries</span><span class="p">(</span><span class="n">gdf_drawn</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Map.clear_drawn_geometries">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.map.Map.clear_drawn_geometries">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_drawn_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear geometries from the map.&quot;&quot;&quot;</span>
+        <span class="c1"># Clear geometries from draw control and draw layer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">draw_control</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clear_on_draw</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">draw_layer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Map.set_drawn_geometries">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.map.Map.set_drawn_geometries">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_drawn_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set geometries to the map.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            gdf (:class:`geopandas.GeoDataFrame`): GeoDataFrame containing the geometries to add to the map.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Add style to GeoDataFrame</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;style&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_style_kwargs_red</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;hover_style&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_hover_style_kwargs_red</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+
+        <span class="c1"># Add type to GeoDataFrame</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">geom_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span> <span class="s2">&quot;MultiPoint&quot;</span><span class="p">]:</span>
+                <span class="n">gdf</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;circlemarker&quot;</span>
+            <span class="k">elif</span> <span class="n">row</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">geom_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;LineString&quot;</span><span class="p">,</span> <span class="s2">&quot;MultiLineString&quot;</span><span class="p">]:</span>
+                <span class="n">gdf</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;polyline&quot;</span>
+            <span class="k">elif</span> <span class="n">row</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">geom_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="s2">&quot;MultiPolygon&quot;</span><span class="p">]:</span>
+                <span class="n">gdf</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;polygon&quot;</span>
+
+        <span class="c1"># Add geometries to draw control or draw layer</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clear_on_draw</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">draw_control</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">iterfeatures</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">draw_layer</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;FeatureCollection&quot;</span><span class="p">,</span> <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">iterfeatures</span><span class="p">())}</span></div>
+
+
+<div class="viewcode-block" id="Map.get_drawn_geometries">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.map.Map.get_drawn_geometries">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_drawn_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get drawn geometries from the map.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            crs (str, optional): Coordinate reference system to reproject the geometries to. Defaults to &quot;EPSG:4326&quot;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            :class:`geopandas.GeoDataFrame`: GeoDataFrame containing the drawn geometries from the map.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get geometries from the map</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clear_on_draw</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">draw_control</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="o">.</span><span class="n">from_features</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">draw_control</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;style&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clear_on_draw</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">draw_layer</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">]:</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="o">.</span><span class="n">from_features</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">draw_layer</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;style&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Move geometry column to end</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="o">!=</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span>
+
+        <span class="c1"># Drop type column if it exists</span>
+        <span class="k">if</span> <span class="s2">&quot;type&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;type&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Reproject geometries</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">gdf</span></div>
+
+
+<div class="viewcode-block" id="Map.get_drawn_points">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.map.Map.get_drawn_points">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_drawn_points</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get drawn points from the map.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            :class:`geopandas.GeoDataFrame`: GeoDataFrame containing the drawn points from the map.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_drawn_geometries</span><span class="p">()</span>
+        <span class="n">gdf_points</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span> <span class="s2">&quot;MultiPoint&quot;</span><span class="p">])]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gdf_points</span></div>
+
+
+<div class="viewcode-block" id="Map.get_drawn_lines">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.map.Map.get_drawn_lines">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_drawn_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get drawn lines from the map.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            :class:`geopandas.GeoDataFrame`: GeoDataFrame containing the drawn lines from the map.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_drawn_geometries</span><span class="p">()</span>
+        <span class="n">gdf_lines</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;LineString&quot;</span><span class="p">,</span> <span class="s2">&quot;MultiLineString&quot;</span><span class="p">])]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gdf_lines</span></div>
+
+
+<div class="viewcode-block" id="Map.get_drawn_polygons">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.map.Map.get_drawn_polygons">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_drawn_polygons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get drawn polygons from the map.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            :class:`geopandas.GeoDataFrame`: GeoDataFrame containing the drawn polygons from the map.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_drawn_geometries</span><span class="p">()</span>
+        <span class="n">gdf_polygons</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="s2">&quot;MultiPolygon&quot;</span><span class="p">])]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gdf_polygons</span></div>
+
+
+<div class="viewcode-block" id="Map.get_drawn_boxes">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.map.Map.get_drawn_boxes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_drawn_boxes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get drawn boxes from the map.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            :class:`geopandas.GeoDataFrame`: GeoDataFrame containing the drawn box geometries from the map.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_drawn_geometries</span><span class="p">()</span>
+        <span class="n">boxes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">geom</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">geom</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">==</span> <span class="s2">&quot;Polygon&quot;</span><span class="p">:</span>
+                <span class="n">minx</span><span class="p">,</span> <span class="n">miny</span><span class="p">,</span> <span class="n">maxx</span><span class="p">,</span> <span class="n">maxy</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">bounds</span>
+                <span class="n">box</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="n">minx</span><span class="p">,</span> <span class="n">miny</span><span class="p">,</span> <span class="n">maxx</span><span class="p">,</span> <span class="n">maxy</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">geom</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">box</span><span class="p">):</span>
+                    <span class="n">boxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+        <span class="n">gdf_boxes</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="n">boxes</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">gdf</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gdf_boxes</span></div>
+
+
+<div class="viewcode-block" id="Map.get_view_bounds">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.map.Map.get_view_bounds">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_view_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get view bounds of the map.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple[float, float, float, float]: View bounds in the format (minx, miny, maxx, maxy).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If bounds are not set, return nan values</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+        <span class="c1"># Get bounds of map view</span>
+        <span class="n">south</span><span class="p">,</span> <span class="n">west</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">north</span><span class="p">,</span> <span class="n">east</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Clip bounds to valid lat/lon ranges</span>
+        <span class="n">minx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">west</span><span class="p">,</span> <span class="o">-</span><span class="mi">180</span><span class="p">)</span>
+        <span class="n">miny</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">south</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">)</span>
+        <span class="n">maxx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">east</span><span class="p">,</span> <span class="mi">180</span><span class="p">)</span>
+        <span class="n">maxy</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">north</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">minx</span><span class="p">,</span> <span class="n">miny</span><span class="p">,</span> <span class="n">maxx</span><span class="p">,</span> <span class="n">maxy</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Map.get_view_zoom">
+<a class="viewcode-back" href="../../resplotlib.html#resplotlib.map.Map.get_view_zoom">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_view_zoom</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get view zoom level of the map.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: View zoom level of the map.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get zoom level of map view</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zoom</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
