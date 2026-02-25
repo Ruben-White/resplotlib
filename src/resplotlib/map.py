@@ -34,10 +34,10 @@ class Map(ipyleaflet.Map):
         **kwargs: Additional keyword arguments to pass to :class:`ipyleaflet.Map`.
     """
 
-    style_kwargs_red = {"weight": 2, "color": "red", "fillColor": "red", "fillOpacity": 0.5, "radius": 10}
-    style_kwargs_green = {"weight": 2, "color": "green", "fillColor": "green", "fillOpacity": 0.5, "radius": 10}
-    hover_style_kwargs_red = {"weight": 2, "color": "red", "fillColor": "red", "fillOpacity": 0.7, "radius": 10}
-    hover_style_kwargs_green = {"weight": 2, "color": "green", "fillColor": "green", "fillOpacity": 0.7, "radius": 10}
+    _style_kwargs_red = {"weight": 2, "color": "red", "fillColor": "red", "fillOpacity": 0.5, "radius": 10}
+    _style_kwargs_green = {"weight": 2, "color": "green", "fillColor": "green", "fillOpacity": 0.5, "radius": 10}
+    _hover_style_kwargs_red = {"weight": 2, "color": "red", "fillColor": "red", "fillOpacity": 0.7, "radius": 10}
+    _hover_style_kwargs_green = {"weight": 2, "color": "green", "fillColor": "green", "fillOpacity": 0.7, "radius": 10}
     _clear_on_draw = None
 
     def __init__(self, gdf: gpd.GeoDataFrame | None = None, clear_on_draw: bool = False, geoman_draw: bool = True, **kwargs) -> None:
@@ -73,11 +73,11 @@ class Map(ipyleaflet.Map):
 
         # Add draw control
         draw_control_kwargs = {
-            "polyline": {"shapeOptions": self.style_kwargs_red},
-            "rectangle": {"shapeOptions": self.style_kwargs_red},
-            "polygon": {"shapeOptions": self.style_kwargs_red},
-            "circle": {"shapeOptions": self.style_kwargs_red},
-            "circlemarker": {"shapeOptions": self.style_kwargs_red},
+            "polyline": {"shapeOptions": self._style_kwargs_red},
+            "rectangle": {"shapeOptions": self._style_kwargs_red},
+            "polygon": {"shapeOptions": self._style_kwargs_red},
+            "circle": {"shapeOptions": self._style_kwargs_red},
+            "circlemarker": {"shapeOptions": self._style_kwargs_red},
         }
         if geoman_draw:
             self.draw_control = ipyleaflet.GeomanDrawControl(**draw_control_kwargs)
@@ -90,9 +90,9 @@ class Map(ipyleaflet.Map):
         if self._clear_on_draw:
             draw_layer_kwargs = {
                 "data": {"type": "FeatureCollection", "features": []},
-                "style": self.style_kwargs_green,
-                "hover_style": self.hover_style_kwargs_green,
-                "point_style": self.style_kwargs_green,
+                "style": self._style_kwargs_green,
+                "hover_style": self._hover_style_kwargs_green,
+                "point_style": self._style_kwargs_green,
                 "name": "Drawn Geometries",
             }
             self.draw_layer = ipyleaflet.GeoJSON(**draw_layer_kwargs)
@@ -143,8 +143,8 @@ class Map(ipyleaflet.Map):
             gdf (:class:`geopandas.GeoDataFrame`): GeoDataFrame containing the geometries to add to the map.
         """
         # Add style to GeoDataFrame
-        gdf["style"] = [self.style_kwargs_red] * len(gdf)
-        gdf["hover_style"] = [self.hover_style_kwargs_red] * len(gdf)
+        gdf["style"] = [self._style_kwargs_red] * len(gdf)
+        gdf["hover_style"] = [self._hover_style_kwargs_red] * len(gdf)
 
         # Add type to GeoDataFrame
         gdf["type"] = None
