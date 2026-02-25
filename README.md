@@ -10,4 +10,4 @@
 
 Resplotlib is a library for resilient plotting of geospatial data in Python. It is a wrapper around the plotting functionalities of [xarray](http://xarray.pydata.org/en/stable/), [xugrid](https://deltares.github.io/xugrid/), [geopandas](https://geopandas.org/), [contextily](https://contextily.readthedocs.io/en/latest/), [matplotlib](https://matplotlib.org/stable/index.html) and [ipyleaflet](https://ipyleaflet.readthedocs.io/en/latest/).
 
-Documentation: https://Ruben-White.github.io/resplotlib/
+Documentation: [https://Ruben-White.github.io/resplotlib/](https://ruben-white.github.io/resplotlib/)
