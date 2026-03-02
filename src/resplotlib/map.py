@@ -173,9 +173,9 @@ class Map(ipyleaflet.Map):
         """
         # Get geometries from the map
         if not self._clear_on_draw and self.draw_control.data:
-            gdf = gpd.GeoDataFrame.from_features(self.draw_control.data, crs="EPSG:4326").drop(columns="style")
+            gdf = gpd.GeoDataFrame.from_features(self.draw_control.data, crs="EPSG:4326")
         elif self._clear_on_draw and self.draw_layer.data["features"]:
-            gdf = gpd.GeoDataFrame.from_features(self.draw_layer.data["features"], crs="EPSG:4326").drop(columns="style")
+            gdf = gpd.GeoDataFrame.from_features(self.draw_layer.data["features"], crs="EPSG:4326")
         else:
             gdf = gpd.GeoDataFrame(columns=["geometry"], crs="EPSG:4326")
 
@@ -183,52 +183,65 @@ class Map(ipyleaflet.Map):
         columns = [col for col in gdf.columns if col != "geometry"] + ["geometry"]
         gdf = gdf[columns]
 
-        # Drop type column if it exists
-        if "type" in gdf.columns:
-            gdf = gdf.drop(columns="type")
+        # Drop style, hover_style, and type columns if they exist
+        for col in ["style", "hover_style", "type"]:
+            if col in gdf.columns:
+                gdf = gdf.drop(columns=col)
 
         # Reproject geometries
         gdf = gdf.to_crs(crs)
 
         return gdf
 
-    def get_drawn_points(self) -> gpd.GeoDataFrame:
+    def get_drawn_points(self, crs: str = "EPSG:4326") -> gpd.GeoDataFrame:
         """Get drawn points from the map.
+
+        Args:
+            crs (str, optional): Coordinate reference system to reproject the geometries to. Defaults to "EPSG:4326".
 
         Returns:
             :class:`geopandas.GeoDataFrame`: GeoDataFrame containing the drawn points from the map.
         """
-        gdf = self.get_drawn_geometries()
+        gdf = self.get_drawn_geometries(crs=crs)
         gdf_points = gdf[gdf.geometry.type.isin(["Point", "MultiPoint"])].reset_index(drop=True)
         return gdf_points
 
-    def get_drawn_lines(self) -> gpd.GeoDataFrame:
+    def get_drawn_lines(self, crs: str = "EPSG:4326") -> gpd.GeoDataFrame:
         """Get drawn lines from the map.
+
+        Args:
+            crs (str, optional): Coordinate reference system to reproject the geometries to. Defaults to "EPSG:4326".
 
         Returns:
             :class:`geopandas.GeoDataFrame`: GeoDataFrame containing the drawn lines from the map.
         """
-        gdf = self.get_drawn_geometries()
+        gdf = self.get_drawn_geometries(crs=crs)
         gdf_lines = gdf[gdf.geometry.type.isin(["LineString", "MultiLineString"])].reset_index(drop=True)
         return gdf_lines
 
-    def get_drawn_polygons(self) -> gpd.GeoDataFrame:
+    def get_drawn_polygons(self, crs: str = "EPSG:4326") -> gpd.GeoDataFrame:
         """Get drawn polygons from the map.
+
+        Args:
+            crs (str, optional): Coordinate reference system to reproject the geometries to. Defaults to "EPSG:4326".
 
         Returns:
             :class:`geopandas.GeoDataFrame`: GeoDataFrame containing the drawn polygons from the map.
         """
-        gdf = self.get_drawn_geometries()
+        gdf = self.get_drawn_geometries(crs=crs)
         gdf_polygons = gdf[gdf.geometry.type.isin(["Polygon", "MultiPolygon"])].reset_index(drop=True)
         return gdf_polygons
 
-    def get_drawn_boxes(self) -> gpd.GeoDataFrame:
+    def get_drawn_boxes(self, crs: str = "EPSG:4326") -> gpd.GeoDataFrame:
         """Get drawn boxes from the map.
+
+        Args:
+            crs (str, optional): Coordinate reference system to reproject the geometries to. Defaults to "EPSG:4326".
 
         Returns:
             :class:`geopandas.GeoDataFrame`: GeoDataFrame containing the drawn box geometries from the map.
         """
-        gdf = self.get_drawn_geometries()
+        gdf = self.get_drawn_geometries(crs=crs)
         boxes = []
         for geom in gdf.geometry:
             if geom.geom_type == "Polygon":
