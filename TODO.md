@@ -1,4 +1,9 @@
 ## TODO list
+### Functionality
+* Map creation add option to supply bounds instead of center and zoom.
+* Explore add option to overwrite existing layers with the same name instead of creating a new layer.
+* Add documentation to explore functions
+
 ### Documentation
 * Check all docstrings.
 
