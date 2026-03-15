@@ -217,7 +217,7 @@ def initialise_map_wrapper(func: callable) -> callable:
         Returns:
             :class:`ipyleaflet.Map` or :class:`resplotlib.map.Map`: The map object resulting from the plotting function.
         """
-        # Initialise map if not provided
+        # Call original function if map is already provided
         if m is not None:
             return func(self, data_or_crs, m=m, **kwargs)
 
@@ -248,6 +248,36 @@ def initialise_map_wrapper(func: callable) -> callable:
 
         # Initialise map
         m = self.Map(center=center, zoom=zoom)
+
+        return func(self, data_or_crs, m=m, **kwargs)
+
+    return wrapper
+
+
+def overwrite_layer_wrapper(func: callable) -> callable:
+    @functools.wraps(func)
+    def wrapper(
+        self, data_or_crs: DATA_OR_CRS_TYPE = None, m: ipyleaflet.Map | map.Map | None = None, overwrite: bool = False, **kwargs
+    ) -> ipyleaflet.Map | map.Map:
+        """Wrapper to overwrite a layer with the same name.
+
+        Args:
+            self (:class:`Resplotclass <resplotlib.Resplotclass>`): The instance of the Resplotclass.
+            data_or_crs (:class:`xarray.DataArray`, :class:`xarray.Dataset`, :class:`xugrid.UgridDataArray`, :class:`xugrid.UgridDataset`, :class:`geopandas.GeoDataFrame`, :class:`pyproj.CRS`, :class:`rasterio.CRS`, str, or None, optional): The data or CRS to be plotted. Defaults to None.
+            m (:class:`ipyleaflet.Map`, :class:`resplotlib.map.Map`, optional): The map to be used for plotting. If None, a new map will be created. Defaults to None.
+            overwrite (bool, optional): Whether to overwrite an existing layer with the same name. Defaults to False.
+
+        Returns:
+            :class:`ipyleaflet.Map` or :class:`resplotlib.map.Map`: The map object resulting from the plotting function.
+        """
+        # Call original function if map is not provided
+        if m is None or not overwrite or "name" not in kwargs:
+            return func(self, data_or_crs, m=m, **kwargs)
+
+        # Remove existing layer with the same name
+        layer = [layer for layer in m.layers if layer.name == kwargs["name"]]
+        if layer:
+            m.remove_layer(layer[0])
 
         return func(self, data_or_crs, m=m, **kwargs)
 

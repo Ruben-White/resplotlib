@@ -40,26 +40,35 @@ class Map(ipyleaflet.Map):
     _hover_style_kwargs_green = {"weight": 2, "color": "green", "fillColor": "green", "fillOpacity": 0.7, "radius": 10}
     _clear_on_draw = None
 
-    def __init__(self, gdf: gpd.GeoDataFrame | None = None, clear_on_draw: bool = False, geoman_draw: bool = True, **kwargs) -> None:
+    def __init__(
+        self, gdf: gpd.GeoDataFrame | None = None, clear_on_draw: bool = False, geoman_draw: bool = True, bounds: list | None = None, **kwargs
+    ) -> None:
         """Initialise the map.
 
         Args:
             gdf (gpd.GeoDataFrame, optional): GeoDataFrame containing the geometries to add to the map. Defaults to None.
             clear_on_draw (bool, optional): Clear drawn geometries from the map when a new geometry is drawn. Defaults to False.
             geoman_draw (bool, optional): Use GeomanDrawControl to draw geometries on the map. Defaults to True.
+            bounds (list, optional): Initial bounds of the map in the format [xmin, ymin, xmax, ymax]. Defaults to None.
             **kwargs: Additional keyword arguments to pass to :class:`ipyleaflet.Map`.
         """
         # Convert gdf to EPSG:4326
         if gdf is not None and not gdf.empty:
             gdf = gdf.to_crs("EPSG:4326")
 
-        # Get center from geometries if not provided
-        if "center" not in kwargs and gdf is not None and not gdf.empty:
-            kwargs["center"] = utils.get_center_from_bounds(gdf.total_bounds)
+        # Get center from geometries or bounds if not provided
+        if "center" not in kwargs:
+            if gdf is not None and not gdf.empty:
+                kwargs["center"] = utils.get_center_from_bounds(gdf.total_bounds)
+            elif bounds is not None:
+                kwargs["center"] = utils.get_center_from_bounds(bounds)
 
-        # Get approximate zoom level from geometries if not provided
-        if "zoom" not in kwargs and gdf is not None and not gdf.empty:
-            kwargs["zoom"] = utils.get_zoom_from_bounds(gdf.total_bounds)
+        # Get approximate zoom level from geometries or bounds if not provided
+        if "zoom" not in kwargs:
+            if gdf is not None and not gdf.empty:
+                kwargs["zoom"] = utils.get_zoom_from_bounds(gdf.total_bounds)
+            elif bounds is not None:
+                kwargs["zoom"] = utils.get_zoom_from_bounds(bounds)
 
         # Set default scroll wheel zoom and layout kwargs
         kwargs.setdefault("scroll_wheel_zoom", True)

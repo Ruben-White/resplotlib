@@ -701,11 +701,13 @@ class Resplotclass:
     @wrappers.format_args_wrapper
     @wrappers.guideline_wrapper
     @wrappers.initialise_map_wrapper
+    @wrappers.overwrite_layer_wrapper
     @wrappers.show_kwargs_wrapper
     def explore_data(
         self,
         da: xr.DataArray | xu.UgridDataArray,
         m: ipyleaflet.Map | map.Map | None = None,
+        overwrite: bool = False,
         show_kwargs: bool = False,
         **kwargs,
     ) -> ipyleaflet.Map:
@@ -715,6 +717,7 @@ class Resplotclass:
             da (:class:`xarray.DataArray` or :class:`xugrid.UgridDataArray`): DataArray to explore.
             m (:class:`ipyleaflet.Map`, :class:`resplotlib.map.Map`, optional): The map to be used for plotting. If None, a new map will be created. Defaults to None.
             style (str, optional): The style to be applied to the plot. Defaults to "default". Set to "none" to ignore style guidelines.
+            overwrite (bool, optional): Whether to overwrite an existing layer with the same name. Defaults to False.
             show_kwargs (bool, optional): Whether to print the keyword arguments passed to plotting function. Defaults to False.
             **kwargs (dict, optional): Additional keyword arguments to pass to :func:`explore_da <resplotlib.interactive.explore_da>` or :func:`explore_uda <resplotlib.interactive.explore_uda>`.
 
@@ -730,15 +733,17 @@ class Resplotclass:
     @wrappers.format_args_wrapper
     @wrappers.guideline_wrapper
     @wrappers.initialise_map_wrapper
+    @wrappers.overwrite_layer_wrapper
     @wrappers.show_kwargs_wrapper
     def explore_geometries(
-        self, gdf: gpd.GeoDataFrame, m: ipyleaflet.Map | map.Map | None = None, show_kwargs: bool = False, **kwargs
+        self, gdf: gpd.GeoDataFrame, m: ipyleaflet.Map | map.Map | None = None, overwrite: bool = False, show_kwargs: bool = False, **kwargs
     ) -> ipyleaflet.Map:
         """Explore a geopandas.GeoDataFrame in an interactive map.
 
         Args:
             gdf (:class:`geopandas:geopandas.GeoDataFrame`): GeoDataFrame to explore.
             m (:class:`ipyleaflet.Map`, :class:`resplotlib.map.Map`, optional): The map to be used for plotting. If None, a new map will be created. Defaults to None.
+            overwrite (bool, optional): Whether to overwrite an existing layer with the same name. Defaults to False.
             show_kwargs (bool, optional): Whether to print the keyword arguments passed to plotting function. Defaults to False.
             **kwargs (dict, optional): Additional keyword arguments to pass to :func:`explore_gdf <resplotlib.interactive.explore_gdf>`.
 
@@ -750,12 +755,16 @@ class Resplotclass:
     @wrappers.format_args_wrapper
     @wrappers.guideline_wrapper
     @wrappers.initialise_map_wrapper
+    @wrappers.overwrite_layer_wrapper
     @wrappers.show_kwargs_wrapper
-    def explore_basemap(self, m: ipyleaflet.Map | map.Map | None = None, show_kwargs: bool = False, **kwargs) -> ipyleaflet.Map:
+    def explore_basemap(
+        self, m: ipyleaflet.Map | map.Map | None = None, overwrite: bool = False, show_kwargs: bool = False, **kwargs
+    ) -> ipyleaflet.Map:
         """Explore a basemap in an interactive map.
 
         Args:
             m (:class:`ipyleaflet.Map`, :class:`resplotlib.map.Map`, optional): The map to be used for plotting. If None, a new map will be created. Defaults to None.
+            overwrite (bool, optional): Whether to overwrite an existing layer with the same name. Defaults to False.
             show_kwargs (bool, optional): Whether to print the keyword arguments passed to plotting function. Defaults to False.
             **kwargs (dict, optional): Additional keyword arguments to pass to :func:`explore_basemap <resplotlib.interactive.explore_basemap>`.
 
@@ -796,8 +805,7 @@ class Resplotclass:
 
         Args:
             fig (:class:`matplotlib.figure.Figure` or :class:`ipyleaflet.Map`): The figure or map to display.
-            **kwargs (dict, optional): Additional keyword arguments. For matplotlib figures, ``tight_layout`` (bool, default True)
-                controls whether to apply tight layout before showing.
+            **kwargs (dict, optional): Additional keyword arguments. For matplotlib figures, ``tight_layout`` (bool, default True) controls whether to apply tight layout before showing.
 
         Returns:
             None
@@ -818,8 +826,7 @@ class Resplotclass:
         Args:
             fig (:class:`matplotlib.figure.Figure` or :class:`ipyleaflet.Map`): The figure or map to save.
             file_path (str): The file path where the figure or map should be saved.
-            **kwargs (dict, optional): Additional keyword arguments. For matplotlib figures, ``tight_layout`` (bool, default True)
-                controls whether to apply tight layout before saving.
+            **kwargs (dict, optional): Additional keyword arguments. For matplotlib figures, ``tight_layout`` (bool, default True) controls whether to apply tight layout before saving.
 
         Returns:
             None
