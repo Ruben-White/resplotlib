@@ -132,6 +132,28 @@ def guideline_wrapper(func: callable) -> callable:
         # Get function name
         func_name = _get_function_name(func)
 
+        # Get data kwargs from data
+        data_func_names = ["imshow", "pcolormesh", "contour", "contourf", "scatter", "quiver", "streamplot", "grid", "explore_data"]
+        if func_name in data_func_names:
+            # Get long_name and units from data attributes
+            long_name = data_or_crs.attrs.get("long_name", None)
+            units = data_or_crs.attrs.get("units", None)
+
+            # Combine long_name and units to label
+            if long_name is not None and units is not None:
+                label = f"{long_name} [{units}]"
+            elif long_name is not None:
+                label = f"{long_name} [-]"
+            elif units is not None:
+                label = f"- [{units}]"
+            else:
+                label = None
+
+            # Combine data kwargs with kwargs
+            if label is not None:
+                data_kwargs = {"cbar_kwargs": {"label": label}}
+                kwargs = utils._combine_dicts(data_kwargs, kwargs)
+
         # Get style kwargs from guidelines
         if style != "none":
             # Get function guidelines
@@ -147,7 +169,7 @@ def guideline_wrapper(func: callable) -> callable:
                 )
             style_kwargs = func_guidelines[style]
 
-            # Combine guidelines with kwargs
+            # Combine style kwargs with kwargs
             kwargs = utils._combine_dicts(style_kwargs, kwargs)
 
         # Get extent kwargs from guidelines
@@ -158,7 +180,7 @@ def guideline_wrapper(func: callable) -> callable:
                 raise ValueError(f"Extent '{extent}' not found in guidelines. Available extents: {list(extents.keys())}")
             extent_kwargs = extents[extent]
 
-            # Combine extent kwargs with existing kwargs
+            # Combine extent kwargs with kwargs
             kwargs = utils._combine_dicts(extent_kwargs, kwargs)
 
         # Get rescale_unit from guidelines if not provided

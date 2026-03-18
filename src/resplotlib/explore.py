@@ -6,6 +6,7 @@ import odc.geo.xr  # noqa: F401
 import xarray as xr
 import xugrid as xu
 from branca import colormap as cm
+from ipywidgets import Output, widgets
 
 from . import map
 
@@ -74,14 +75,19 @@ def explore_choropleth(gdf: gpd.GeoDataFrame, m: ipyleaflet.Map | map.Map, colum
 
     kwargs.setdefault("style_callback", style_callback)
 
-    # Check if column is numeric
-    if gdf[column].dtype.kind not in "biufc":
-        raise ValueError(f"Column '{column}' must be numeric for choropleth.")
-
     # Get data for choropleth
     geo_data = gdf.__geo_interface__
-    choro_data = gdf[column].to_dict()
-    colormap = _mpl_cmap_to_branca_cmap(kwargs.pop("cmap", "Spectral_r"))
+    if gdf[column].dtype.kind in "biufc":
+        choro_data = gdf[column].to_dict()
+        colormap = _mpl_cmap_to_branca_cmap(kwargs.pop("cmap", "Spectral_r"))
+    else:
+        # Sory by column and add numbers between 0 and 1 based on unique column values
+        gdf = gdf.sort_values(column)
+        labels = gdf[column].unique()
+        labels_dict = {label: idx / (len(labels) - 1) for idx, label in enumerate(labels)}
+        gdf["label_map"] = gdf[column].map(labels_dict)
+        choro_data = gdf["label_map"].to_dict()
+        colormap = _mpl_cmap_to_branca_cmap(kwargs.pop("cmap", "tab20"))
     value_min = kwargs.pop("vmin", None)
     value_max = kwargs.pop("vmax", None)
 
@@ -99,17 +105,25 @@ def explore_choropleth(gdf: gpd.GeoDataFrame, m: ipyleaflet.Map | map.Map, colum
     m.add(layer)
 
     if "legend" in kwargs and kwargs["legend"]:
-        # Create colormap control
-        colormap_control = _ColormapControl(
-            caption=kwargs.get("label", column),
-            colormap=colormap,
-            value_min=layer.value_min,
-            value_max=layer.value_max,
-            position="bottomright",
-        )
+        if gdf[column].dtype.kind in "biufc":
+            # Create colormap control
+            control = _ColormapControl(
+                caption=kwargs.get("label", column),
+                colormap=colormap,
+                value_min=round(layer.value_min, 1),
+                value_max=round(layer.value_max, 1),
+                position="bottomright",
+            )
+        else:
+            control = LegendControl(
+                title=kwargs.get("label", column),
+                colormap=colormap,
+                items=labels_dict,
+                position="bottomright",
+            )
 
-        # Add colormap control to map
-        m.add_control(colormap_control)
+        # Add control to map
+        m.add_control(control)
 
     return m
 
@@ -268,7 +282,6 @@ def explore_basemap(m: ipyleaflet.Map | map.Map, source: str = "OpenStreetMap.Ma
 from branca.colormap import ColorMap, linear  # noqa: E402
 from ipyleaflet import WidgetControl  # noqa: E402
 from IPython.display import display  # noqa: E402
-from ipywidgets import Output  # noqa: E402
 from traitlets import CFloat, Instance, Unicode, default  # noqa: E402
 
 
@@ -302,4 +315,62 @@ class _ColormapControl(WidgetControl):
             colormap.caption = self.caption
             display(colormap)
 
+        return widget
+
+
+class LegendControl(WidgetControl):
+    """LegendControl class, with WidgetControl as parent class.
+
+    A control which contains a legend.
+
+    Attributes
+    ----------
+    title : str, default 'Legend'
+        The title of the legend.
+    colormap: branca.colormap.ColorMap instance, default linear.OrRd_06
+        The colormap used for the effect.
+    value_min : float, default 0.0
+        The minimal value taken by the data to be represented by the colormap.
+    value_max : float, default 1.0
+        The maximal value taken by the data to be represented by the colormap.
+    items: dict, default {}
+        The items to be displayed in the legend, where keys are the labels and values are the corresponding values to be mapped to colors using the colormap.
+    """
+
+    title = Unicode("Legend")
+    colormap = Instance(ColorMap, default_value=linear.OrRd_06)
+    value_min = CFloat(0.0)
+    value_max = CFloat(1.0)
+    items = Instance(dict, default_value={})
+
+    def _legend_title(self):
+        item = widgets.HTML(
+            value=f"""
+            <div style='display:flex; align-items:center; line-height:12px; background:transparent;'>
+            <span style='font-size:12px; font-weight:bold;'>{self.title}</span>
+            </div>
+            """
+        )
+        return item
+
+    def _legend_item(self, label, color):
+        item = widgets.HTML(
+            value=f"""
+            <div style='display:flex; align-items:center; line-height:12px; background:transparent;'>
+                <div style='width:12px; height:12px; background:{color}; margin-right:4px;'></div>
+                <span style='font-size:12px;'>{label}</span>
+            </div>
+            """
+        )
+        return item
+
+    @default("widget")
+    def _default_widget(self):
+        widget = Output(layout={"margin": "10px 10px"})
+        with widget:
+            items = [self._legend_title()]
+            colormap = self.colormap.scale(self.value_min, self.value_max)
+            for label, value in self.items.items():
+                items.append(self._legend_item(label, colormap(value)))
+            display(widgets.VBox(items))
         return widget

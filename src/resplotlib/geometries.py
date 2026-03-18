@@ -41,6 +41,7 @@ def _add_arrow(geometries: gpd.GeoSeries, ax: plt.Axes, arrow_kwargs: dict | Non
     arrow_kwargs.setdefault("mutation_scale", 20)
     arrow_kwargs.setdefault("shrinkA", 0)
     arrow_kwargs.setdefault("shrinkB", 0)
+    arrow_kwargs.setdefault("zorder", 2)
     if "color" not in arrow_kwargs:
         arrow_kwargs.setdefault("edgecolor", "none")
 

@@ -1,22 +1,14 @@
 ## TODO list
 ### Functionality
-* Map creation add option to supply bounds instead of center and zoom.
-* Explore add option to overwrite existing layers with the same name instead of creating a new layer.
-* Add documentation to explore functions
+* Add more styles to guidelines
+* Add popup to explore?
 
 ### Documentation
 * Check all docstrings.
 
-### Data
-* Clean up extra columns in the dataframes.
-
 ### Usage examples
 * Implement usage example notebooks 2, 3 and 4.
- * See how to incorporate interactive plots in notebooks (save to html and link to it?).
 
 ### Packaging
 * Move whole repo to a new repo to ensure that the history of the code is clean.
-* Add github actions for uploading to PyPI
-
-## Logo
-* Improve logo by adding all different types of plots for the Wadden Sea.
+* Add github actions for uploading to TestPyPI and PyPI.
