@@ -63,7 +63,7 @@ def format_args_wrapper(func: callable) -> callable:
         kwargs = {key: value for key, value in kwargs.items() if value is not None}
 
         # Format arguments based on function name and call original function
-        if func_name in ["imshow", "pcolormesh", "contour", "contourf", "grid", "explore_imshow"] and data_or_crs is None:
+        if func_name in ["imshow", "pcolormesh", "contour", "contourf", "grid", "explore_data"] and data_or_crs is None:
             if "da" in kwargs:
                 data_or_crs = kwargs.pop("da")
             elif "uda" in kwargs:
@@ -250,8 +250,8 @@ def initialise_map_wrapper(func: callable) -> callable:
             bounds = gdf_bbox.to_crs("EPSG:4326").geometry.total_bounds
 
         elif isinstance(data_or_crs, xu.UgridDataArray | xu.UgridDataset):
-            bounds = data_or_crs.ugrid.bounds
-            gdf_bbox = gpd.GeoDataFrame(geometry=[box(*bounds)], crs=data_or_crs.ugrid.crs)
+            bounds = data_or_crs.grid.bounds
+            gdf_bbox = gpd.GeoDataFrame(geometry=[box(*bounds)], crs=data_or_crs.grid.crs)
             bounds = gdf_bbox.to_crs("EPSG:4326").geometry.total_bounds
         elif isinstance(data_or_crs, gpd.GeoDataFrame):
             bounds = data_or_crs.total_bounds
@@ -394,9 +394,12 @@ def cbar_axis_wrapper(func: callable) -> callable:
         func_name = _get_function_name(func)
 
         # If append_axes_kwargs is None (or function specific conditions are met), call original function
-        if append_axes_kwargs is None:
+        if func_name == "imshow" and data_or_crs.ndim == 3:
+            kwargs.pop("cbar_kwargs", None)
             return func(self, data_or_crs, ax=ax, **kwargs)
-        elif func_name == "imshow" and (("add_colorbar" in kwargs and kwargs["add_colorbar"] is False) or data_or_crs.ndim == 3):
+        elif append_axes_kwargs is None:
+            return func(self, data_or_crs, ax=ax, **kwargs)
+        elif func_name == "imshow" and ("add_colorbar" in kwargs and kwargs["add_colorbar"] is False):
             kwargs.pop("cbar_kwargs", None)
             return func(self, data_or_crs, ax=ax, **kwargs)
         elif func_name == "pcolormesh" and ("add_colorbar" in kwargs and kwargs["add_colorbar"] is False):
