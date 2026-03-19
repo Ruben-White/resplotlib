@@ -115,7 +115,7 @@ def explore_choropleth(gdf: gpd.GeoDataFrame, m: ipyleaflet.Map | map.Map, colum
                 position="bottomright",
             )
         else:
-            control = LegendControl(
+            control = _LegendControl(
                 title=kwargs.get("label", column),
                 colormap=colormap,
                 items=labels_dict,
@@ -318,7 +318,7 @@ class _ColormapControl(WidgetControl):
         return widget
 
 
-class LegendControl(WidgetControl):
+class _LegendControl(WidgetControl):
     """LegendControl class, with WidgetControl as parent class.
 
     A control which contains a legend.
