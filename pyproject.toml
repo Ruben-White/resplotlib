@@ -4,7 +4,7 @@ version = "0.0.1"
 authors = [{ name = "Ruben White" }]
 description = "Resplotlib is a library for creating resilient plots for geospatial data in Python"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.12"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
