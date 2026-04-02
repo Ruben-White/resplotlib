@@ -423,7 +423,10 @@ def cbar_axis_wrapper(func: callable) -> callable:
         elif func_name == "grid" and (data_or_crs.dims[0] != "mesh2d_nEdges" or ("add_colorbar" in kwargs and kwargs["add_colorbar"] is False)):
             kwargs.pop("cbar_kwargs", None)
             return func(self, data_or_crs, ax=ax, **kwargs)
-        elif func_name == "geometries" and ("legend" not in kwargs or kwargs["legend"] is False):
+        elif func_name == "geometries" and (
+            ("legend" not in kwargs or kwargs["legend"] is False)
+            or ("legend" in kwargs and "column" in kwargs and kwargs["legend"] is True and data_or_crs[kwargs["column"]].dtype.kind not in "biufc")
+        ):
             return func(self, data_or_crs, ax=ax, **kwargs)
 
         # Divide axis
