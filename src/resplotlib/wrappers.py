@@ -420,7 +420,7 @@ def cbar_axis_wrapper(func: callable) -> callable:
         elif func_name == "streamplot" and ("hue" not in kwargs or ("add_guide" in kwargs and kwargs["add_guide"] is False)):
             kwargs.pop("cbar_kwargs", None)
             return func(self, data_or_crs, ax=ax, **kwargs)
-        elif func_name == "grid" and (data_or_crs.dims[0] != "mesh2d_nEdges" or ("add_colorbar" in kwargs and kwargs["add_colorbar"] is False)):
+        elif func_name == "grid" and (list(data_or_crs.dims)[0] != "mesh2d_nEdges" or ("add_colorbar" in kwargs and kwargs["add_colorbar"] is False)):
             kwargs.pop("cbar_kwargs", None)
             return func(self, data_or_crs, ax=ax, **kwargs)
         elif func_name == "geometries" and (

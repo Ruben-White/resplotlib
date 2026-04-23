@@ -187,7 +187,7 @@ def explore_da(da: xr.DataArray, m: ipyleaflet.Map | map.Map | None = None, **kw
     kwargs["vmax"] = da.quantile(0.98).item() if robust else da.max().item()
 
     # Convert to RGBA if data array has 3 dimensions and "band" is one of the dimensions with size 3
-    rgb = len(da.dims) == 3 and "band" in da.dims and da.sizes["band"] == 3
+    rgb = len(da.dims) == 3 and "band" in list(da.dims) and da.sizes["band"] == 3
     if rgb:
         ds = da.to_dataset(dim="band")
         da = ds.odc.to_rgba(bands=da.band.values.tolist(), vmin=kwargs["vmin"], vmax=kwargs["vmax"])

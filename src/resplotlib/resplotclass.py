@@ -12,7 +12,7 @@ from IPython.display import display
 from pyproj import CRS as pyprojCRS
 from rasterio.crs import CRS as rasterioCRS
 
-from . import basemaps, explore, geometries, map, utils, videos, wrappers
+from . import basemaps, convert, explore, geometries, map, utils, videos, wrappers
 from .guidelines import Guidelines
 
 DIR_PATH_PACKAGE = Path(__file__).resolve().parent
@@ -452,7 +452,7 @@ class Resplotclass:
 
             # Quiver requires that x and y must be the first two dimensions
             xy_dims = [kwargs.get("x", "x"), kwargs.get("y", "y")]
-            dims = xy_dims + [dim for dim in ds.dims if dim not in xy_dims]
+            dims = xy_dims + [dim for dim in list(ds.dims) if dim not in xy_dims]
             ds = ds.transpose(*dims)
 
             return ds.plot.quiver(ax=ax, **kwargs)
@@ -590,7 +590,7 @@ class Resplotclass:
 
             return uda.ugrid.plot.line(ax=ax, **kwargs)
         elif isinstance(da, xu.UgridDataArray):
-            if da.dims[0] != "mesh2d_nEdges" and "color" not in kwargs:
+            if list(da.dims)[0] != "mesh2d_nEdges" and "color" not in kwargs:
                 kwargs.setdefault("color", "black")
             return da.ugrid.plot.line(ax=ax, **kwargs)
 
@@ -891,6 +891,42 @@ class Resplotclass:
             **kwargs: Additional keyword arguments to pass to :func:`imageio.mimsave`.
         """
         videos.create_gif(file_path_images, file_path_gif, fps, **kwargs)
+
+    def from_structured(self, da, **kwargs) -> xu.UgridDataArray:
+        """Convert a structured xarray.DataArray to an unstructured xugrid.UgridDataArray.
+
+        Args:
+            da (:class:`xarray.DataArray`): The structured DataArray to convert.
+            **kwargs: Additional keyword arguments to pass to :func:`to_unstructured <resplotlib.convert.to_unstructured>`.
+        Returns:
+            :class:`xugrid.UgridDataArray`: The converted unstructured UgridDataArray.
+        """
+
+        # Convert structured data to unstructured data
+        if isinstance(da, xr.DataArray | xr.Dataset):
+            uda = convert.from_structured(da, **kwargs)
+        else:
+            raise TypeError("data type not supported. Please provide a xarray.DataArray or xarray.Dataset. Received: {}".format(type(da)))
+
+        return uda
+
+    def to_structured(self, uda, **kwargs) -> xr.DataArray:
+        """Convert an unstructured xugrid.UgridDataArray or xugrid.UgridDataset to a structured xarray.DataArray.
+
+        Args:
+            uda (:class:`xugrid.UgridDataArray` or :class:`xugrid.UgridDataset`): The unstructured UgridDataArray or UgridDataset to convert.
+            **kwargs: Additional keyword arguments to pass to :func:`to_structured <resplotlib.convert.to_structured>`.
+        Returns:
+            :class:`xarray.DataArray`: The converted structured DataArray.
+        """
+
+        # Convert unstructured data to structured data
+        if isinstance(uda, xu.UgridDataArray | xu.UgridDataset):
+            da = convert.to_structured(uda, **kwargs)
+        else:
+            raise TypeError("data type not supported. Please provide a xugrid.UgridDataArray or xugrid.UgridDataset. Received: {}".format(type(uda)))
+
+        return da
 
 
 # Instance of resilient plotter class
