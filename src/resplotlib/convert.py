@@ -90,7 +90,8 @@ def to_structured(
             ds = ds.drop_vars(coord)
 
     # Replace mesh2d_nFaces dimension with idx dimension
-    ds = ds.rename({"mesh2d_nFaces": "idx"})
+    idx_dim = [dim for dim in ds.dims if dim.startswith("mesh2d_")][0]
+    ds = ds.rename({idx_dim: "idx"})
     ds["idx"] = range(len(ds["idx"]))
 
     # Add x, and y coordinates
