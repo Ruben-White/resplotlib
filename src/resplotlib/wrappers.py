@@ -523,6 +523,12 @@ def format_axis_wrapper(func: callable) -> callable:
         ax.set_aspect(**aspect_kwargs)
         ax.grid(**grid_kwargs)
 
+        # Remove quiver keys
+        if func_name in ["quiver", "streamplot"]:
+            qks = [child for child in ax.get_children() if isinstance(child, matplotlib.quiver.QuiverKey)]
+            for qk in qks:
+                qk.remove()
+
         return p
 
     return wrapper

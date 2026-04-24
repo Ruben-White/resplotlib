@@ -25,6 +25,18 @@
             "image": {
                 "rgb": "band",
                 "robust": true
+            },
+            "flow_velocity": {
+                "inherits": "@default",
+                "cbar_kwargs": {"label": "Flow velocity [m/s]"},
+                "center": false,
+                "cmap": "other"
+            },
+            "flow_direction": {
+                "inherits": "@default",
+                "cbar_kwargs": {"label": "Flow direction [degrees North]"},
+                "center": false,
+                "cmap": "cet_CET_C8s"
             }
         },
         "pcolormesh": {
@@ -37,18 +49,42 @@
                 "cbar_kwargs": {"label": "Bathymetry [m@vrl]"},
                 "center": false,
                 "cmap": "Spectral_r"
+            },
+            "flow_velocity": {
+                "inherits": "@default",
+                "cbar_kwargs": {"label": "Flow velocity [m/s]"},
+                "center": false,
+                "cmap": "other"
+            },
+            "flow_direction": {
+                "inherits": "@default",
+                "cbar_kwargs": {"label": "Flow direction [degrees North]"},
+                "center": false,
+                "cmap": "cet_CET_C8s"
             }
         },
         "contour": {
             "default": {
                 "append_axes_kwargs": {"pad": 0.2, "position": "right", "size": 0.2},
-                "cmap": "Spectral_r"
+                "cmap": "Spectral_contour_r"
             },
             "bathymetry": {
                 "inherits": "@default",
                 "cbar_kwargs": {"label": "Bathymetry [m@vrl]"},
                 "center": false,
-                "cmap": "Spectral_r"
+                "cmap": "Spectral_contour_r"
+            },
+            "flow_velocity": {
+                "inherits": "@default",
+                "cbar_kwargs": {"label": "Flow velocity [m/s]"},
+                "center": false,
+                "cmap": "other_contour"
+            },
+            "flow_direction": {
+                "inherits": "@default",
+                "cbar_kwargs": {"label": "Flow direction [degrees North]"},
+                "center": false,
+                "cmap": "cet_CET_C8s"
             }
         },
          "contourf": {
@@ -61,6 +97,18 @@
                 "cbar_kwargs": {"label": "Bathymetry [m@vrl]"},
                 "center": false,
                 "cmap": "Spectral_r"
+            },
+            "flow_velocity": {
+                "inherits": "@default",
+                "cbar_kwargs": {"label": "Flow velocity [m/s]"},
+                "center": false,
+                "cmap": "other"
+            },
+            "flow_direction": {
+                "inherits": "@default",
+                "cbar_kwargs": {"label": "Flow direction [degrees North]"},
+                "center": false,
+                "cmap": "cet_CET_C8s"
             }
         },
          "scatter": {
@@ -72,6 +120,16 @@
                 "inherits": "@default",
                 "cbar_kwargs": {"label": "Bathymetry [m@vrl]"},
                 "cmap": "Spectral_r"
+            },
+            "flow_velocity": {
+                "inherits": "@default",
+                "cbar_kwargs": {"label": "Flow velocity [m/s]"},
+                "cmap": "other"
+            },
+            "flow_direction": {
+                "inherits": "@default",
+                "cbar_kwargs": {"label": "Flow direction [degrees North]"},
+                "cmap": "cet_CET_C8s"
             }
         },
         "quiver": {
@@ -88,6 +146,20 @@
                 "cbar_kwargs": {"label": "Bathymetry [m@vrl]"},
                 "center": false,
                 "cmap": "Spectral_r"
+            },
+            "flow_velocity": {
+                "inherits": "@default",
+                "add_guide": true,
+                "cbar_kwargs": {"label": "Flow velocity [m/s]"},
+                "center": false,
+                "cmap": "other"
+            },
+            "flow_direction": {
+                "inherits": "@default",
+                "add_guide": true,
+                "cbar_kwargs": {"label": "Flow direction [degrees North]"},
+                "center": false,
+                "cmap": "cet_CET_C8s"
             }
         },
         "streamplot": {
@@ -101,6 +173,20 @@
                 "cbar_kwargs": {"label": "Bathymetry [m@vrl]"},
                 "center": false,
                 "cmap": "Spectral_r"
+            },
+            "flow_velocity": {
+                "inherits": "@default",
+                "add_guide": true,
+                "cbar_kwargs": {"label": "Flow velocity [m/s]"},
+                "center": false,
+                "cmap": "other"
+            },
+            "flow_direction": {
+                "inherits": "@default",
+                "add_guide": true,
+                "cbar_kwargs": {"label": "Flow direction [degrees North]"},
+                "center": false,
+                "cmap": "cet_CET_C8s"
             }
         },
         "grid": {
