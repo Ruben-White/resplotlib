@@ -41,17 +41,29 @@ class Map(ipyleaflet.Map):
     _clear_on_draw = None
 
     def __init__(
-        self, gdf: gpd.GeoDataFrame | None = None, clear_on_draw: bool = False, geoman_draw: bool = True, bounds: list | None = None, **kwargs
+        self,
+        gdf: gpd.GeoDataFrame | None = None,
+        bounds: list | None = None,
+        bounds_as_gdf: bool = False,
+        clear_on_draw: bool = False,
+        geoman_draw: bool = True,
+        **kwargs,
     ) -> None:
         """Initialise the map.
 
         Args:
             gdf (gpd.GeoDataFrame, optional): GeoDataFrame containing the geometries to add to the map. Defaults to None.
+            bounds (list, optional): Initial bounds of the map in the format [xmin, ymin, xmax, ymax]. Defaults to None.
+            bounds_as_gdf (bool, optional): Whether to convert bounds to a GeoDataFrame and add it to the map. Defaults to False.
             clear_on_draw (bool, optional): Clear drawn geometries from the map when a new geometry is drawn. Defaults to False.
             geoman_draw (bool, optional): Use GeomanDrawControl to draw geometries on the map. Defaults to True.
-            bounds (list, optional): Initial bounds of the map in the format [xmin, ymin, xmax, ymax]. Defaults to None.
+
             **kwargs: Additional keyword arguments to pass to :class:`ipyleaflet.Map`.
         """
+        # Convert bounds to GeoDataFrame and add to map if bounds_as_gdf is True and gdf is not provided
+        if gdf is None and bounds is not None and bounds_as_gdf:
+            gdf = gpd.GeoDataFrame(geometry=[shapely.geometry.box(*bounds)], crs="EPSG:4326")
+
         # Convert gdf to EPSG:4326
         if gdf is not None and not gdf.empty:
             gdf = gdf.to_crs("EPSG:4326")
