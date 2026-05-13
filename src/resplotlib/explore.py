@@ -107,11 +107,12 @@ def explore_choropleth(gdf: gpd.GeoDataFrame, m: ipyleaflet.Map | map.Map, colum
     if "legend" in kwargs and kwargs["legend"]:
         if gdf[column].dtype.kind in "biufc":
             # Create colormap control
+            n_decimals = max(0, -int(np.floor(np.log10(layer.value_max - layer.value_min))) + 1) + 1
             control = _ColormapControl(
                 caption=kwargs.get("label", column),
                 colormap=colormap,
-                value_min=round(layer.value_min, 1),
-                value_max=round(layer.value_max, 1),
+                value_min=round(layer.value_min, n_decimals),
+                value_max=round(layer.value_max, n_decimals),
                 position="bottomright",
             )
         else:
@@ -211,8 +212,9 @@ def explore_da(da: xr.DataArray, m: ipyleaflet.Map | map.Map | None = None, **kw
         # Get data for colormap control
         caption = f"{da.attrs.get('long_name', '')} [{da.attrs.get('units', '')}]"
         colormap = _mpl_cmap_to_branca_cmap(kwargs.get("cmap", "Spectral_r"))
-        value_min = np.round(kwargs["vmin"], 1)
-        value_max = np.round(kwargs["vmax"], 1)
+        n_decimals = max(0, -int(np.floor(np.log10(kwargs["vmax"] - kwargs["vmin"]))) + 1) + 1
+        value_min = np.round(kwargs["vmin"], n_decimals)
+        value_max = np.round(kwargs["vmax"], n_decimals)
 
         # Create colormap control
         colormap_control = _ColormapControl(
