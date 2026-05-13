@@ -81,7 +81,7 @@ def explore_choropleth(gdf: gpd.GeoDataFrame, m: ipyleaflet.Map | map.Map, colum
         choro_data = gdf[column].to_dict()
         colormap = _mpl_cmap_to_branca_cmap(kwargs.pop("cmap", "Spectral_r"))
     else:
-        # Sory by column and add numbers between 0 and 1 based on unique column values
+        # Sort by column and add numbers between 0 and 1 based on unique column values
         gdf = gdf.sort_values(column)
         labels = gdf[column].unique()
         labels_dict = {label: idx / (len(labels) - 1) for idx, label in enumerate(labels)}
@@ -146,6 +146,14 @@ def explore_gdf(gdf: gpd.GeoDataFrame, m: ipyleaflet.Map | map.Map | None = None
 
     # Reproject geodataframe to EPSG:4326
     gdf = gdf.to_crs("EPSG:4326")
+
+    # Keep only geometry and column of interest and drop rows with missing values
+    if column is not None:
+        gdf = gdf[[column, "geometry"]]
+        gdf = gdf.dropna(subset=[column, "geometry"])
+    else:
+        gdf = gdf[["geometry"]]
+        gdf = gdf.dropna(subset=["geometry"])
 
     # Reset index and convert to string to ensure compatibility with ipyleaflet
     gdf = gdf.reset_index(drop=True)
