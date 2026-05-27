@@ -190,10 +190,10 @@ def explore_da(da: xr.DataArray, m: ipyleaflet.Map | map.Map | None = None, **kw
     if m is None:
         m = ipyleaflet.Map()
 
-    # Set vmin and vmax to 2nd and 98th percentiles if "robust" is True in kwargs
+    # If vmin and vmax not set, set them to the 2nd and 98th percentiles if "robust" is True, otherwise set them to the min and max of the data array
     robust = kwargs.get("robust", False)
-    kwargs["vmin"] = da.quantile(0.02).item() if robust else da.min().item()
-    kwargs["vmax"] = da.quantile(0.98).item() if robust else da.max().item()
+    kwargs.setdefault("vmin", da.quantile(0.02).item() if robust else da.min().item())
+    kwargs.setdefault("vmax", da.quantile(0.98).item() if robust else da.max().item())
 
     # Convert to RGBA if data array has 3 dimensions and "band" is one of the dimensions with size 3
     rgb = len(da.dims) == 3 and "band" in list(da.dims) and da.sizes["band"] == 3
