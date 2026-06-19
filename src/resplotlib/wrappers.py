@@ -505,7 +505,7 @@ def format_axis_wrapper(func: callable) -> callable:
         if aspect_kwargs is None:
             aspect_kwargs = {"aspect": "equal"}
         if grid_kwargs is None:
-            grid_kwargs = {"visible": True}
+            grid_kwargs = {"visible": True, "alpha": 0.5}
 
         # Call original function
         if func_name in ["basemap"]:

@@ -787,21 +787,40 @@ class Resplotclass:
         return plt.subplots(*args, **kwargs)
 
     def Map(
-        self, gdf: gpd.GeoDataFrame | None = None, clear_on_draw: bool = False, geoman_draw: bool = True, bounds: list | None = None, **kwargs
+        self,
+        gdf: gpd.GeoDataFrame | None = None,
+        bounds: list | None = None,
+        bounds_crs: str = "EPSG:4326",
+        draw_gdf: bool = True,
+        draw_bounds: bool = False,
+        clear_on_draw: bool = False,
+        geoman_draw: bool = True,
+        **kwargs,
     ) -> map.Map:
         """Create an interactive map.
 
         Args:
             gdf (gpd.GeoDataFrame, optional): GeoDataFrame containing the geometries to add to the map. Defaults to None.
+            bounds (list, optional): Initial bounds of the map in the format [xmin, ymin, xmax, ymax]. Defaults to None.
+            draw_gdf (bool, optional): Whether to draw the provided GeoDataFrame on the map. Defaults to True.
+            draw_bounds (bool, optional): Whether to draw the provided bounds on the map. Defaults to False.
             clear_on_draw (bool, optional): Clear drawn geometries from the map when a new geometry is drawn. Defaults to False.
             geoman_draw (bool, optional): Use GeomanDrawControl to draw geometries on the map. Defaults to True.
-            bounds (list, optional): Initial bounds of the map in the format [xmin, ymin, xmax, ymax]. Defaults to None.
             **kwargs (dict, optional): Additional keyword arguments to pass to :func:`Map <resplotlib.map.Map>`.
 
         Returns:
             :class:`resplotlib.map.Map`: The interactive map object.
         """
-        return map.Map(gdf=gdf, clear_on_draw=clear_on_draw, geoman_draw=geoman_draw, bounds=bounds, **kwargs)
+        return map.Map(
+            gdf=gdf,
+            bounds=bounds,
+            bounds_crs=bounds_crs,
+            draw_gdf=draw_gdf,
+            draw_bounds=draw_bounds,
+            clear_on_draw=clear_on_draw,
+            geoman_draw=geoman_draw,
+            **kwargs,
+        )
 
     def show(self, fig: plt.Figure | ipyleaflet.Map, **kwargs) -> None:
         """Display a figure or interactive map.

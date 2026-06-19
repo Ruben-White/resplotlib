@@ -1,6 +1,7 @@
 import geopandas as gpd
 import ipyleaflet
 import numpy as np
+import pandas as pd
 import shapely.geometry
 from ipywidgets import HTML
 
@@ -44,7 +45,9 @@ class Map(ipyleaflet.Map):
         self,
         gdf: gpd.GeoDataFrame | None = None,
         bounds: list | None = None,
-        bounds_as_gdf: bool = False,
+        bounds_crs: str = "EPSG:4326",
+        draw_gdf: bool = True,
+        draw_bounds: bool = False,
         clear_on_draw: bool = False,
         geoman_draw: bool = True,
         **kwargs,
@@ -54,15 +57,16 @@ class Map(ipyleaflet.Map):
         Args:
             gdf (gpd.GeoDataFrame, optional): GeoDataFrame containing the geometries to add to the map. Defaults to None.
             bounds (list, optional): Initial bounds of the map in the format [xmin, ymin, xmax, ymax]. Defaults to None.
-            bounds_as_gdf (bool, optional): Whether to convert bounds to a GeoDataFrame and add it to the map. Defaults to False.
+            draw_gdf (bool, optional): Whether to draw the provided GeoDataFrame on the map. Defaults to True.
+            draw_bounds (bool, optional): Whether to draw the provided bounds on the map. Defaults to False.
             clear_on_draw (bool, optional): Clear drawn geometries from the map when a new geometry is drawn. Defaults to False.
             geoman_draw (bool, optional): Use GeomanDrawControl to draw geometries on the map. Defaults to True.
-
             **kwargs: Additional keyword arguments to pass to :class:`ipyleaflet.Map`.
         """
-        # Convert bounds to GeoDataFrame and add to map if bounds_as_gdf is True and gdf is not provided
-        if gdf is None and bounds is not None and bounds_as_gdf:
-            gdf = gpd.GeoDataFrame(geometry=[shapely.geometry.box(*bounds)], crs="EPSG:4326")
+        # Convert bounds to GeoDataFrame
+        gdf_bounds = None
+        if bounds is not None:
+            gdf_bounds = gpd.GeoDataFrame(geometry=[shapely.geometry.box(*bounds)], crs=bounds_crs).to_crs("EPSG:4326")
 
         # Convert gdf to EPSG:4326
         if gdf is not None and not gdf.empty:
@@ -70,17 +74,17 @@ class Map(ipyleaflet.Map):
 
         # Get center from geometries or bounds if not provided
         if "center" not in kwargs:
-            if gdf is not None and not gdf.empty:
+            if gdf_bounds is not None and not gdf_bounds.empty:
+                kwargs["center"] = utils.get_center_from_bounds(gdf_bounds.total_bounds)
+            elif gdf is not None and not gdf.empty:
                 kwargs["center"] = utils.get_center_from_bounds(gdf.total_bounds)
-            elif bounds is not None:
-                kwargs["center"] = utils.get_center_from_bounds(bounds)
 
         # Get approximate zoom level from geometries or bounds if not provided
         if "zoom" not in kwargs:
-            if gdf is not None and not gdf.empty:
+            if gdf_bounds is not None and not gdf_bounds.empty:
+                kwargs["zoom"] = utils.get_zoom_from_bounds(gdf_bounds.total_bounds)
+            elif gdf is not None and not gdf.empty:
                 kwargs["zoom"] = utils.get_zoom_from_bounds(gdf.total_bounds)
-            elif bounds is not None:
-                kwargs["zoom"] = utils.get_zoom_from_bounds(bounds)
 
         # Set default scroll wheel zoom and layout kwargs
         kwargs.setdefault("scroll_wheel_zoom", True)
@@ -124,8 +128,13 @@ class Map(ipyleaflet.Map):
         self.add_control(ipyleaflet.LayersControl(position="topright"))
 
         # Set geometries to map
-        if gdf is not None and not gdf.empty:
+        if gdf is not None and not gdf.empty and draw_gdf and gdf_bounds is not None and not gdf_bounds.empty and draw_bounds:
+            gdf_combined = gpd.GeoDataFrame(pd.concat([gdf, gdf_bounds], ignore_index=True), crs="EPSG:4326")
+            self.set_drawn_geometries(gdf_combined)
+        elif gdf is not None and not gdf.empty and draw_gdf:
             self.set_drawn_geometries(gdf)
+        elif gdf_bounds is not None and not gdf_bounds.empty and draw_bounds:
+            self.set_drawn_geometries(gdf_bounds)
 
     def _handle_draw(self, target: ipyleaflet.Widget, action: str, geo_json: dict) -> None:
         """Handle draw events from the draw control.

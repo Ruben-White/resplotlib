@@ -284,6 +284,6 @@ def get_zoom_from_bounds(bounds: tuple[float, float, float, float]) -> int:
         int: Approximate zoom level of the bounds.
     """
     minx, miny, maxx, maxy = bounds
-    span = max(maxx - minx, maxy - miny)
-    zoom = int(np.log2(360 / span)) + 1
+    span = np.clip(max(maxx - minx, maxy - miny), 1e-6, 360)
+    zoom = np.clip(int(np.log2(360 / span)) + 1, 0, 20)
     return zoom
