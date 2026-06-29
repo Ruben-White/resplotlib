@@ -151,8 +151,8 @@ def guideline_wrapper(func: callable) -> callable:
 
             # Combine data kwargs with kwargs
             if label is not None:
-                data_kwargs = {"cbar_kwargs": {"label": label}}
-                kwargs = utils._combine_dicts(data_kwargs, kwargs)
+                data_kwargs = {"cbar_kwargs": {"label": label}, "append_axes_kwargs": {"pad": 0.2, "position": "right", "size": 0.2}}
+                kwargs = utils._combine_dicts(data_kwargs, kwargs)  # Prioritise user-provided kwargs over data kwargs
 
         # Get style kwargs from guidelines
         if style != "none":
