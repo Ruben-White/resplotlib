@@ -5,8 +5,6 @@ import pandas as pd
 import shapely.geometry
 from ipywidgets import HTML
 
-from resplotlib import utils
-
 # The following CSS is used to set the background color of the Leaflet controls to white and make them fully opaque.
 # It does not have to be supplied anywhere but for some reason, without it, the controls are transparent.
 css = HTML("""
@@ -75,16 +73,16 @@ class Map(ipyleaflet.Map):
         # Get center from geometries or bounds if not provided
         if "center" not in kwargs:
             if gdf_bounds is not None and not gdf_bounds.empty:
-                kwargs["center"] = utils.get_center_from_bounds(gdf_bounds.total_bounds)
+                kwargs["center"] = get_center_from_bounds(gdf_bounds.total_bounds)
             elif gdf is not None and not gdf.empty:
-                kwargs["center"] = utils.get_center_from_bounds(gdf.total_bounds)
+                kwargs["center"] = get_center_from_bounds(gdf.total_bounds)
 
         # Get approximate zoom level from geometries or bounds if not provided
         if "zoom" not in kwargs:
             if gdf_bounds is not None and not gdf_bounds.empty:
-                kwargs["zoom"] = utils.get_zoom_from_bounds(gdf_bounds.total_bounds)
+                kwargs["zoom"] = get_zoom_from_bounds(gdf_bounds.total_bounds)
             elif gdf is not None and not gdf.empty:
-                kwargs["zoom"] = utils.get_zoom_from_bounds(gdf.total_bounds)
+                kwargs["zoom"] = get_zoom_from_bounds(gdf.total_bounds)
 
         # Set default scroll wheel zoom and layout kwargs
         kwargs.setdefault("scroll_wheel_zoom", True)
@@ -282,6 +280,24 @@ class Map(ipyleaflet.Map):
         gdf_boxes = gpd.GeoDataFrame(geometry=boxes, crs=gdf.crs).reset_index(drop=True)
         return gdf_boxes
 
+    def set_view_bounds(self, bounds: tuple[float, float, float, float], crs: str = "EPSG:4326") -> None:
+        """Set view bounds of the map.
+
+        Args:
+            bounds (tuple[float, float, float, float]): Bounds in the format (minx, miny, maxx, maxy).
+            crs (str, optional): Coordinate reference system of the bounds. Defaults to "EPSG:4326".
+        """
+        # Convert bounds to GeoDataFrame
+        gdf_bounds = gpd.GeoDataFrame(geometry=[shapely.geometry.box(*bounds)], crs=crs).to_crs("EPSG:4326")
+
+        # Get center and zoom from bounds
+        center = get_center_from_bounds(gdf_bounds.total_bounds)
+        zoom = get_zoom_from_bounds(gdf_bounds.total_bounds)
+
+        # Set center and zoom of map view
+        self.center = center
+        self.zoom = zoom
+
     def get_view_bounds(self) -> tuple[float, float, float, float]:
         """Get view bounds of the map.
 
@@ -304,6 +320,15 @@ class Map(ipyleaflet.Map):
 
         return (minx, miny, maxx, maxy)
 
+    def set_view_zoom(self, zoom: int) -> None:
+        """Set view zoom level of the map.
+
+        Args:
+            zoom (int): View zoom level of the map.
+        """
+        # Set zoom level of map view
+        self.zoom = zoom
+
     def get_view_zoom(self) -> int:
         """Get view zoom level of the map.
 
@@ -312,3 +337,33 @@ class Map(ipyleaflet.Map):
         """
         # Get zoom level of map view
         return self.zoom
+
+
+def get_center_from_bounds(bounds: tuple[float, float, float, float]) -> tuple[float, float]:
+    """Get center from bounds.
+
+    Args:
+        bounds (tuple[float, float, float, float]): Bounds (minx, miny, maxx, maxy).
+
+    Returns:
+        tuple[float, float]: Center of the bounds (latitude, longitude).
+    """
+    minx, miny, maxx, maxy = bounds
+    center_lat = (miny + maxy) / 2
+    center_lon = (minx + maxx) / 2
+    return center_lat, center_lon
+
+
+def get_zoom_from_bounds(bounds: tuple[float, float, float, float]) -> int:
+    """Get approximate zoom level from bounds.
+
+    Args:
+        bounds (tuple[float, float, float, float]): Bounds (minx, miny, maxx, maxy).
+
+    Returns:
+        int: Approximate zoom level of the bounds.
+    """
+    minx, miny, maxx, maxy = bounds
+    span = np.clip(max(maxx - minx, maxy - miny), 1e-6, 360)
+    zoom = np.clip(int(np.log2(360 / span)) + 1, 0, 20)
+    return zoom

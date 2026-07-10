@@ -265,8 +265,8 @@ def initialise_map_wrapper(func: callable) -> callable:
             )
 
         # Get center and zoom from bounds
-        center = utils.get_center_from_bounds(bounds)
-        zoom = utils.get_zoom_from_bounds(bounds)
+        center = map.get_center_from_bounds(bounds)
+        zoom = map.get_zoom_from_bounds(bounds)
 
         # Initialise map
         m = self.Map(center=center, zoom=zoom)

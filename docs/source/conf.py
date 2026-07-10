@@ -4,8 +4,9 @@
 # %%
 import shutil
 import sys
-import tomllib
 from pathlib import Path
+
+import tomllib
 
 DIR_PATH_REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(DIR_PATH_REPO / "src"))
@@ -96,8 +97,8 @@ def copy_notebooks(dir_path_notebooks, dir_path_notebooks_copy):
 
 def on_builder_inited(app):
     copy_notebooks(
-        DIR_PATH_REPO / "notebooks" / "usage_examples",
-        DIR_PATH_REPO / "docs" / "source" / "usage_examples",
+        dir_path_notebooks=DIR_PATH_REPO / "notebooks" / "usage_examples",
+        dir_path_notebooks_copy=DIR_PATH_REPO / "docs" / "source" / "usage_examples",
     )
 
 

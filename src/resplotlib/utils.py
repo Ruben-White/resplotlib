@@ -257,33 +257,3 @@ def get_xy_labels(data_or_crs: DATA_OR_CRS_TYPE = None, rescale_unit: str | None
         y_label = f"y [{rescale_unit}]"
 
     return x_label, y_label
-
-
-def get_center_from_bounds(bounds: tuple[float, float, float, float]) -> tuple[float, float]:
-    """Get center from bounds.
-
-    Args:
-        bounds (tuple[float, float, float, float]): Bounds (minx, miny, maxx, maxy).
-
-    Returns:
-        tuple[float, float]: Center of the bounds (latitude, longitude).
-    """
-    minx, miny, maxx, maxy = bounds
-    center_lat = (miny + maxy) / 2
-    center_lon = (minx + maxx) / 2
-    return center_lat, center_lon
-
-
-def get_zoom_from_bounds(bounds: tuple[float, float, float, float]) -> int:
-    """Get approximate zoom level from bounds.
-
-    Args:
-        bounds (tuple[float, float, float, float]): Bounds (minx, miny, maxx, maxy).
-
-    Returns:
-        int: Approximate zoom level of the bounds.
-    """
-    minx, miny, maxx, maxy = bounds
-    span = np.clip(max(maxx - minx, maxy - miny), 1e-6, 360)
-    zoom = np.clip(int(np.log2(360 / span)) + 1, 0, 20)
-    return zoom
