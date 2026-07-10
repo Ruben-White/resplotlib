@@ -298,11 +298,12 @@ class Map(ipyleaflet.Map):
         self.center = center
         self.zoom = zoom
 
-    def get_view_bounds(self) -> tuple[float, float, float, float]:
+    def get_view_bounds(self, crs: str = "EPSG:4326") -> tuple[float, float, float, float]:
         """Get view bounds of the map.
 
         Returns:
             tuple[float, float, float, float]: View bounds in the format (minx, miny, maxx, maxy).
+            crs (str, optional): Coordinate reference system of the returned bounds. Defaults to "EPSG:4326".
         """
         # If bounds are not set, return nan values
         if len(self.bounds) != 2:
@@ -317,6 +318,11 @@ class Map(ipyleaflet.Map):
         miny = max(south, -90)
         maxx = min(east, 180)
         maxy = min(north, 90)
+
+        # Reproject bounds to specified CRS
+        if crs != "EPSG:4326":
+            gdf_bounds = gpd.GeoDataFrame(geometry=[shapely.geometry.box(minx, miny, maxx, maxy)], crs="EPSG:4326").to_crs(crs)
+            minx, miny, maxx, maxy = gdf_bounds.total_bounds
 
         return (minx, miny, maxx, maxy)
 
