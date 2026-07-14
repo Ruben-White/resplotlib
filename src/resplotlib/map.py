@@ -373,3 +373,49 @@ def get_zoom_from_bounds(bounds: tuple[float, float, float, float]) -> int:
     span = np.clip(max(maxx - minx, maxy - miny), 1e-6, 360)
     zoom = np.clip(int(np.log2(360 / span)) + 1, 0, 20)
     return zoom
+
+
+def save(m: ipyleaflet.Map, file_path: str, **kwargs) -> None:
+    """Save the map to an HTML file and make it fullscreen.
+
+    Args:
+        m (ipyleaflet.Map): The map to save.
+        file_path (str): The path to the HTML file to save the map to.
+        **kwargs: Additional keyword arguments to pass to the save method of the map.
+    """
+    # Save the map to an HTML file
+    m.save(file_path, **kwargs)
+
+    # Read the saved HTML file
+    with open(file_path, "r", encoding="utf-8") as f:
+        html = f.read()
+
+    # Modify the HTML to make the map fullscreen
+    body = """<body style="margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;">"""
+    css = """
+    <style>
+    html, body {
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .leaflet-container,
+    .jupyter-widgets,
+    .widget-subarea,
+    .widget-inline-hbox {
+        width: 100vw !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    </style>
+    """
+    html = html.replace("<body>", body)
+    html = html.replace("</head>", css + "\n</head>")
+
+    # Write the modified HTML back to the file
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(html)

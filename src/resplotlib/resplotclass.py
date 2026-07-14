@@ -860,13 +860,7 @@ class Resplotclass:
             kwargs.setdefault("bbox_inches", "tight")
             fig.savefig(file_path, **kwargs)
         elif isinstance(fig, ipyleaflet.Map):
-            width = fig.layout.width
-            height = fig.layout.height
-            fig.layout.width = "100%"
-            fig.layout.height = "calc(100vh - 16px)"
-            fig.save(file_path, **kwargs)
-            fig.layout.width = width
-            fig.layout.height = height
+            map.save(fig, file_path, **kwargs)
         else:
             raise TypeError("Figure must be a matplotlib.figure.Figure or ipyleaflet.Map")
 
