@@ -1,8 +1,14 @@
+import uuid
+
+import contextily as cx
 import matplotlib.pyplot as plt
 from pyproj import CRS as pyprojCRS
 from rasterio.crs import CRS as rasterioCRS
 
 from . import utils
+
+# NOTE: Use a unique user agent to avoid being blocked by tile providers
+cx.tile.USER_AGENT = f"resplotlib-{uuid.uuid4().hex}"
 
 
 def plot_basemap(
@@ -41,13 +47,13 @@ def plot_basemap(
 
 # Code below was adapted from the contextily package to allow for scaling of the basemap
 # (https://github.com/geopandas/contextily/blob/main/contextily/plotting.py)
-import numpy as np  # noqa: E402
-from contextily import providers  # noqa: E402
-from contextily.plotting import _is_overlay, _reproj_bb  # noqa: E402
-from contextily.plotting import add_attribution as add_attribution_  # noqa: E402
-from contextily.tile import _warper, bounds2img, warp_tiles  # noqa: E402
-from rasterio.enums import Resampling  # noqa: E402
-from xyzservices import TileProvider  # noqa: E402
+import numpy as np
+from contextily import providers
+from contextily.plotting import _is_overlay, _reproj_bb
+from contextily.plotting import add_attribution as add_attribution_
+from contextily.tile import _warper, bounds2img, warp_tiles
+from rasterio.enums import Resampling
+from xyzservices import TileProvider
 
 INTERPOLATION = "bilinear"
 ZOOM = "auto"
@@ -247,5 +253,3 @@ def _add_basemap(
         attribution = source.get("attribution")
     if attribution and add_attribution:
         add_attribution_(ax, attribution, font_size=attribution_size)
-
-    return
