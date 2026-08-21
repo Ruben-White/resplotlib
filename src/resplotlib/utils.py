@@ -224,7 +224,7 @@ def get_rescale_parameters(
     # Get scale factor
     if rescale_unit is None and crs_unit is None:
         scale_factor = 1.0
-    if crs_unit in SCALE_METRES and rescale_unit in SCALE_METRES:
+    elif crs_unit in SCALE_METRES and rescale_unit in SCALE_METRES:
         scale_factor = SCALE_METRES[rescale_unit] / SCALE_METRES[crs_unit]
     elif crs_unit in SCALE_DEGREES and rescale_unit in SCALE_DEGREES:
         scale_factor = SCALE_DEGREES[rescale_unit] / SCALE_DEGREES[crs_unit]
