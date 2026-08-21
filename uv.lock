@@ -1428,6 +1428,19 @@ wheels = [
 ]
 
 [[package]]
+name = "numba-celltree"
+version = "0.4.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numba" },
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/bf/b5/ed0173fe454cf3464aa993284967abc7a13fbd1af345bb9172dbc084c9ec/numba_celltree-0.4.2.tar.gz", hash = "sha256:2eb29b80397af2503e726a82f5c631348e42bc77d6451fa9725ebb760ae888c1", size = 53291, upload-time = "2026-02-27T16:28:59.395Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2c/05/596993a30a1a7f802eede7f8a75c65a5b0f08409a36c667d78fe40612a88/numba_celltree-0.4.2-py3-none-any.whl", hash = "sha256:9b6db556bc6b82d4417571c0e846e25aae4036ecf2f5d861cf65472f0f74e598", size = 42635, upload-time = "2026-02-27T16:28:58.357Z" },
+]
+
+[[package]]
 name = "numpy"
 version = "2.5.2"
 source = { registry = "https://pypi.org/simple" }
@@ -2132,6 +2145,7 @@ dependencies = [
     { name = "matplotlib" },
     { name = "netcdf4" },
     { name = "numba" },
+    { name = "numba-celltree" },
     { name = "odc-geo" },
     { name = "opencv-python" },
     { name = "rioxarray" },
@@ -2173,6 +2187,7 @@ requires-dist = [
     { name = "nbsphinx", marker = "extra == 'docs'", specifier = ">=0.9.6" },
     { name = "netcdf4", specifier = ">=1.7.4" },
     { name = "numba", specifier = ">=0.67.0" },
+    { name = "numba-celltree", specifier = ">=0.4.2" },
     { name = "odc-geo", specifier = ">=0.5.0" },
     { name = "opencv-python", specifier = ">=4.13.0.90" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.4.0" },

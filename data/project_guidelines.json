@@ -1,8 +1,8 @@
 {
     "metadata": {
         "title": "Example Project Guidelines",
-        "author": "Ruben White",
-        "date": "2026-02-04"
+        "authors": ["Ruben White"],
+        "date": "2026-08-21"
     },
     "project": {
         "crs": "EPSG:32631",
