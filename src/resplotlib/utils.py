@@ -25,7 +25,7 @@ def _combine_dicts(dict1: dict, dict2: dict, max_depth: int = 4) -> dict:
         return dict2
 
     # Both dictionaries are not dictionaries -> return dictionary 2
-    if not isinstance(dict1, dict) and not isinstance(dict2, dict):
+    if not isinstance(dict1, dict) and not isinstance(dict2, dict):  # noqa: SIM114
         return dict2
 
     # Dictionary 1 is not a dictionary -> return dictionary 2
@@ -41,11 +41,11 @@ def _combine_dicts(dict1: dict, dict2: dict, max_depth: int = 4) -> dict:
     dict_combined = {}
     for key in keys:
         # Key not in dictionary 1 -> use dictionary 2
-        if key not in dict1.keys():
+        if key not in dict1:
             dict_combined[key] = dict2[key]
 
         # Key not in dictionary 2 -> use dictionary 1
-        elif key not in dict2.keys():
+        elif key not in dict2:
             dict_combined[key] = dict1[key]
 
         # Key in both dictionaries -> combine dictionaries
@@ -96,7 +96,7 @@ def _substitute_inherit_str_in_dicts(dict1: dict, max_depth: int = 4) -> dict:
     if max_depth == 0:
         return dict1
 
-    for key1 in dict1.keys():
+    for key1 in dict1:
         # Check if value is a dictionary
         if not isinstance(dict1[key1], dict):
             continue
@@ -110,7 +110,7 @@ def _substitute_inherit_str_in_dicts(dict1: dict, max_depth: int = 4) -> dict:
 
         # Get reference and available references
         reference = dict2.pop("inherits").lstrip("@")
-        available_references = [k for k in dict1.keys() if k != key1]
+        available_references = [k for k in dict1 if k != key1]
 
         # Apply inheritance if reference is available
         if reference in available_references:
@@ -207,7 +207,9 @@ def get_rescale_parameters(
     crs = get_crs_from_data_or_crs(data_or_crs)
 
     # Get crs unit
-    crs_unit = UNIT_ABBREVIATIONS[crs.axis_info[0].unit_name.lower()] if crs is not None else None
+    crs_unit = crs.axis_info[0].unit_name.lower() if crs is not None else None
+    if crs_unit in UNIT_ABBREVIATIONS:
+        crs_unit = UNIT_ABBREVIATIONS[crs_unit]
 
     # Get rescale unit
     if crs_unit is None:
