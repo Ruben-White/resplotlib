@@ -186,6 +186,8 @@ def get_rescale_parameters(
         "arcsecond": "arcsec",
         "arcminute": "arcmin",
         "radian": "rad",
+        "pixel": "px",
+        "unknown": "-",
     }
     SCALE_METRES = {
         "mm": 1000,
@@ -202,6 +204,7 @@ def get_rescale_parameters(
         "nmi": 0.000539957,
     }
     SCALE_DEGREES = {"deg": 1, "arcsec": 3600, "arcmin": 60, "rad": np.pi / 180}
+    SCALE_OTHERS = ["px", "-"]
 
     # Get crs from data or CRS
     crs = get_crs_from_data_or_crs(data_or_crs)
@@ -212,7 +215,7 @@ def get_rescale_parameters(
         crs_unit = UNIT_ABBREVIATIONS[crs_unit]
 
     # Get rescale unit
-    if crs_unit is None:
+    if crs_unit is None or crs_unit in SCALE_OTHERS:
         rescale_unit = None
     elif crs_unit in SCALE_METRES:
         rescale_unit = rescale_unit or "km"
@@ -222,7 +225,7 @@ def get_rescale_parameters(
         raise ValueError(f"CRS unit '{crs_unit}' not recognised for rescaling")
 
     # Get scale factor
-    if rescale_unit is None and crs_unit is None:
+    if rescale_unit is None and (crs_unit is None or crs_unit in SCALE_OTHERS):
         scale_factor = 1.0
     elif crs_unit in SCALE_METRES and rescale_unit in SCALE_METRES:
         scale_factor = SCALE_METRES[rescale_unit] / SCALE_METRES[crs_unit]
