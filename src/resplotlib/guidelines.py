@@ -104,7 +104,10 @@ class Guidelines(dict):
         """
         # Print guidelines in console if not in Jupyter Notebook
         if not get_ipython():
-            print(self)
+            if "metadata" in self:
+                print(f"Guidelines metadata: {self['metadata']}")
+            else:
+                print("Guidelines metadata: No metadata available.")
 
         # Set open/closed state
         open = "open" if open else "closed"
