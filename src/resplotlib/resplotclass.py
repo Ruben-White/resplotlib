@@ -16,7 +16,7 @@ from . import basemaps, convert, explore, geometries, map, utils, videos, wrappe
 from .guidelines import Guidelines
 
 DIR_PATH_PACKAGE = Path(__file__).resolve().parent
-FILE_PATH_DEFAULT_GLS = str(DIR_PATH_PACKAGE / "guidelines" / "default_guidelines.json")
+FILE_PATH_DEFAULT_GLS = DIR_PATH_PACKAGE / "guidelines" / "default_guidelines.json"
 
 
 class Resplotclass:
@@ -31,7 +31,7 @@ class Resplotclass:
         file_path (str, optional): File path to project guidelines. Defaults to None.
     """
 
-    def __init__(self, file_path: str | None = None) -> None:
+    def __init__(self, file_path: str | Path | None = None) -> None:
         """Initialise the Resplotclass.
 
         Args:
@@ -41,7 +41,7 @@ class Resplotclass:
         self.set_guidelines(file_path=file_path)
 
     # Guidelines methods
-    def set_guidelines(self, file_path: str | None = None) -> None:
+    def set_guidelines(self, file_path: str | Path | None = None) -> None:
         """Set guidelines for the Resplotclass.
 
         Args:
@@ -50,12 +50,12 @@ class Resplotclass:
 
         # Read default guidelines
         self.default_guidelines = Guidelines(file_path=FILE_PATH_DEFAULT_GLS)
-        self.default_guidelines["metadata"]["file_path"] = FILE_PATH_DEFAULT_GLS
+        self.default_guidelines["metadata"]["file_path"] = str(FILE_PATH_DEFAULT_GLS)
 
         # Read project guidelines
         if file_path is not None:
             self.project_guidelines = Guidelines(file_path=file_path)
-            self.project_guidelines["metadata"]["file_path"] = file_path
+            self.project_guidelines["metadata"]["file_path"] = str(file_path)
         else:
             self.project_guidelines = Guidelines()
 
@@ -590,7 +590,7 @@ class Resplotclass:
 
             return uda.ugrid.plot.line(ax=ax, **kwargs)
         elif isinstance(da, xu.UgridDataArray):
-            if list(da.dims)[0] != "mesh2d_nEdges" and "color" not in kwargs:
+            if next(iter(da.dims)) != "mesh2d_nEdges" and "color" not in kwargs:
                 kwargs.setdefault("color", "black")
             return da.ugrid.plot.line(ax=ax, **kwargs)
 
@@ -842,12 +842,12 @@ class Resplotclass:
         else:
             raise TypeError("Figure must be a matplotlib.figure.Figure or ipyleaflet.Map")
 
-    def save(self, fig, file_path, **kwargs) -> None:
+    def save(self, fig: plt.Figure | ipyleaflet.Map, file_path: str | Path, **kwargs) -> None:
         """Save a figure or interactive map to a file.
 
         Args:
             fig (:class:`matplotlib.figure.Figure` or :class:`ipyleaflet.Map`): The figure or map to save.
-            file_path (str): The file path where the figure or map should be saved.
+            file_path (str | Path): The file path where the figure or map should be saved.
             **kwargs (dict, optional): Additional keyword arguments. For matplotlib figures, ``tight_layout`` (bool, default True) controls whether to apply tight layout before saving.
 
         Returns:
@@ -860,7 +860,7 @@ class Resplotclass:
             kwargs.setdefault("bbox_inches", "tight")
             fig.savefig(file_path, **kwargs)
         elif isinstance(fig, ipyleaflet.Map):
-            map.save(fig, file_path, **kwargs)
+            map.save(fig, str(file_path), **kwargs)
         else:
             raise TypeError("Figure must be a matplotlib.figure.Figure or ipyleaflet.Map")
 
@@ -883,23 +883,23 @@ class Resplotclass:
         del fig
         gc.collect()
 
-    def video(self, file_path_images: list[str], file_path_video: str, fps: int = 5, **kwargs) -> None:
+    def video(self, file_path_images: list[str], file_path_video: str | Path, fps: int = 5, **kwargs) -> None:
         """Create a video from a list of images.
 
         Args:
             file_path_images (list[str]): List of file paths to images.
-            file_path_video (str): File path for the output video.
+            file_path_video (str | Path): File path for the output video.
             fps (int, optional): Frames per second for the video. Defaults to 5.
             **kwargs: Additional keyword arguments to pass to :func:`cv2.VideoWriter`.
         """
         videos.create_video(file_path_images, file_path_video, fps, **kwargs)
 
-    def gif(self, file_path_images: list[str], file_path_gif: str, fps: int = 5, **kwargs) -> None:
+    def gif(self, file_path_images: list[str], file_path_gif: str | Path, fps: int = 5, **kwargs) -> None:
         """Create a GIF from a list of images.
 
         Args:
             file_path_images (list[str]): List of file paths to images.
-            file_path_gif (str): File path for the output GIF.
+            file_path_gif (str | Path): File path for the output GIF.
             fps (int, optional): Frames per second for the GIF. Defaults to 5.
             **kwargs: Additional keyword arguments to pass to :func:`imageio.mimsave`.
         """
@@ -919,7 +919,7 @@ class Resplotclass:
         if isinstance(da, xr.DataArray | xr.Dataset):
             uda = convert.from_structured(da, **kwargs)
         else:
-            raise TypeError("data type not supported. Please provide a xarray.DataArray or xarray.Dataset. Received: {}".format(type(da)))
+            raise TypeError(f"data type not supported. Please provide a xarray.DataArray or xarray.Dataset. Received: {type(da)}")
 
         return uda
 
@@ -937,7 +937,7 @@ class Resplotclass:
         if isinstance(uda, xu.UgridDataArray | xu.UgridDataset):
             da = convert.to_structured(uda, **kwargs)
         else:
-            raise TypeError("data type not supported. Please provide a xugrid.UgridDataArray or xugrid.UgridDataset. Received: {}".format(type(uda)))
+            raise TypeError(f"data type not supported. Please provide a xugrid.UgridDataArray or xugrid.UgridDataset. Received: {type(uda)}")
 
         return da
 

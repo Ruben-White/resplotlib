@@ -233,7 +233,7 @@ def _add_basemap(
     # Plotting
     if image.shape[2] == 1:
         image = image[:, :, 0]
-    img = ax.imshow(image, extent=extent, interpolation=interpolation, **extra_imshow_args)
+    ax.imshow(image, extent=extent, interpolation=interpolation, **extra_imshow_args)
 
     if reset_extent:
         ax.axis((xmin, xmax, ymin, ymax))

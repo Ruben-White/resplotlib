@@ -104,7 +104,7 @@ def explore_choropleth(gdf: gpd.GeoDataFrame, m: ipyleaflet.Map | map.Map, colum
     # Add layer to map
     m.add(layer)
 
-    if "legend" in kwargs and kwargs["legend"]:
+    if kwargs.get("legend"):
         if gdf[column].dtype.kind in "biufc":
             # Create colormap control
             n_decimals = max(0, -int(np.floor(np.log10(layer.value_max - layer.value_min))) + 1) + 1
@@ -289,10 +289,10 @@ def explore_basemap(m: ipyleaflet.Map | map.Map, source: str = "OpenStreetMap.Ma
 
 # Class below was adapted from ipyleaflet's ColorMapControl to allow for a slightly nicer display of the colormap
 # (https://ipyleaflet.readthedocs.io/en/latest/_modules/ipyleaflet/leaflet.html#ColormapControl)
-from branca.colormap import ColorMap, linear  # noqa: E402
-from ipyleaflet import WidgetControl  # noqa: E402
-from IPython.display import display  # noqa: E402
-from traitlets import CFloat, Instance, Unicode, default  # noqa: E402
+from branca.colormap import ColorMap, linear
+from ipyleaflet import WidgetControl
+from IPython.display import display
+from traitlets import CFloat, Instance, Unicode, default
 
 
 class _ColormapControl(WidgetControl):

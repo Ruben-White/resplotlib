@@ -33,10 +33,10 @@ class Map(ipyleaflet.Map):
         **kwargs: Additional keyword arguments to pass to :class:`ipyleaflet.Map`.
     """
 
-    _style_kwargs_red = {"weight": 2, "color": "red", "fillColor": "red", "fillOpacity": 0.5, "radius": 10}
-    _style_kwargs_green = {"weight": 2, "color": "green", "fillColor": "green", "fillOpacity": 0.5, "radius": 10}
-    _hover_style_kwargs_red = {"weight": 2, "color": "red", "fillColor": "red", "fillOpacity": 0.7, "radius": 10}
-    _hover_style_kwargs_green = {"weight": 2, "color": "green", "fillColor": "green", "fillOpacity": 0.7, "radius": 10}
+    _style_kwargs_red = {"weight": 2, "color": "red", "fillColor": "red", "fillOpacity": 0.5, "radius": 10}  # noqa: RUF012
+    _style_kwargs_green = {"weight": 2, "color": "green", "fillColor": "green", "fillOpacity": 0.5, "radius": 10}  # noqa: RUF012
+    _hover_style_kwargs_red = {"weight": 2, "color": "red", "fillColor": "red", "fillOpacity": 0.7, "radius": 10}  # noqa: RUF012
+    _hover_style_kwargs_green = {"weight": 2, "color": "green", "fillColor": "green", "fillOpacity": 0.7, "radius": 10}  # noqa: RUF012
     _clear_on_draw = None
 
     def __init__(

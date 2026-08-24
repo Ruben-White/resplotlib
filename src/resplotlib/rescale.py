@@ -43,7 +43,7 @@ def rescale_uda(uda: xu.UgridDataArray | xu.UgridDataset, scale_factor: float) -
 
         # Rename the dimensions of the data
         for dim in list(uda.indexes):
-            for new_dim in NEW_DIMS.keys():
+            for new_dim in NEW_DIMS:
                 if new_dim in dim:
                     uda = uda.rename({dim: NEW_DIMS[new_dim]})
 

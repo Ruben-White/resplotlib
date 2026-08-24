@@ -142,7 +142,7 @@ def plot_gdf(gdf: gpd.GeoDataFrame, ax: plt.Axes, **kwargs) -> plt.Axes:
     gdf_groups = sorted(gdf_groups, key=lambda x: x[1].index.min())
 
     # Plot each group separately
-    for kwargs, gdf_group in gdf_groups:
+    for _, gdf_group in gdf_groups:
         # Get keyword arguments
         kwargs = gdf_group["kwargs"].iloc[0]
 

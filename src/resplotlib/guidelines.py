@@ -1,13 +1,14 @@
 import html
 import json
-from typing import Dict
+from pathlib import Path
 
+from IPython import get_ipython
 from IPython.display import HTML, display
 
 from . import utils
 
 
-class Guidelines(Dict):
+class Guidelines(dict):
     """Guidelines
 
     This class is a dictionary that contains the plotting guidelines. It can be initialised with a dictionary or with a json file containing the guidelines.
@@ -17,7 +18,7 @@ class Guidelines(Dict):
         file_path (str, optional): Path to a json file containing the guidelines. Defaults to None.
     """
 
-    def __init__(self, *args, file_path: str | None = None) -> None:
+    def __init__(self, *args, file_path: str | Path | None = None) -> None:
         """Initialise the Guidelines.
 
         Args:
@@ -44,7 +45,7 @@ class Guidelines(Dict):
         for key, value in project_properties.items():
             self = utils._substitute_str_in_dict(self, f"@{key}", str(value))
 
-    def _read_guidelines(self, file_path: str) -> Dict:
+    def _read_guidelines(self, file_path: str | Path) -> dict:
         """Read guidelines from a  file containing the guidelines.
 
         Args:
@@ -59,7 +60,7 @@ class Guidelines(Dict):
 
         return guidelines
 
-    def _show_guideline_levels(self, _dict: Dict, level: int, indent: int) -> str:
+    def _show_guideline_levels(self, _dict: dict, level: int, indent: int) -> str:
         """Recursively show guideline levels.
 
         Args:
@@ -101,6 +102,10 @@ class Guidelines(Dict):
         Args:
             open (bool): Show guidelines as open or closed. Defaults to True.
         """
+        # Print guidelines in console if not in Jupyter Notebook
+        if not get_ipython():
+            print(self)
+
         # Set open/closed state
         open = "open" if open else "closed"
 
@@ -116,4 +121,6 @@ class Guidelines(Dict):
             </div>
         </details>
         """
+
+        # Display guidelines in Jupyter Notebook
         display(HTML(html_str))

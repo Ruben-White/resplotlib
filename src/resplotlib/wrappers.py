@@ -218,7 +218,7 @@ def initialise_fig_wrapper(func: callable) -> callable:
         # Initialise figure and axes if not provided
         if ax is None:
             subplot_kwargs = {} if subplot_kwargs is None else subplot_kwargs
-            fig, ax = plt.subplots(1, 1, **subplot_kwargs)
+            _, ax = plt.subplots(1, 1, **subplot_kwargs)
 
         return func(self, data_or_crs, ax=ax, **kwargs)
 
@@ -260,7 +260,7 @@ def initialise_map_wrapper(func: callable) -> callable:
         elif isinstance(data_or_crs, pyprojCRS | rasterioCRS | str):
             bounds = (-180, -90, 180, 90)
         else:
-            raise ValueError(
+            raise TypeError(
                 "Data or CRS not provided. Please provide a xarray.DataArray, xarray.Dataset, xugrid.UgridDataArray, xugrid.UgridDataset, geopandas.GeoDataFrame, pyproj.CRS, rasterio.CRS, or a CRS string."
             )
 
@@ -399,28 +399,24 @@ def cbar_axis_wrapper(func: callable) -> callable:
             return func(self, data_or_crs, ax=ax, **kwargs)
         elif append_axes_kwargs is None:
             return func(self, data_or_crs, ax=ax, **kwargs)
-        elif func_name == "imshow" and ("add_colorbar" in kwargs and kwargs["add_colorbar"] is False):
-            kwargs.pop("cbar_kwargs", None)
-            return func(self, data_or_crs, ax=ax, **kwargs)
-        elif func_name == "pcolormesh" and ("add_colorbar" in kwargs and kwargs["add_colorbar"] is False):
-            kwargs.pop("cbar_kwargs", None)
-            return func(self, data_or_crs, ax=ax, **kwargs)
-        elif func_name == "contour" and ("add_colorbar" not in kwargs or kwargs["add_colorbar"] is False):
-            kwargs.pop("cbar_kwargs", None)
-            return func(self, data_or_crs, ax=ax, **kwargs)
-        elif func_name == "contourf" and ("add_colorbar" in kwargs and kwargs["add_colorbar"] is False):
-            kwargs.pop("cbar_kwargs", None)
-            return func(self, data_or_crs, ax=ax, **kwargs)
-        elif func_name == "scatter" and ("hue" not in kwargs or ("add_colorbar" not in kwargs or kwargs["add_colorbar"] is False)):
-            kwargs.pop("cbar_kwargs", None)
-            return func(self, data_or_crs, ax=ax, **kwargs)
-        elif func_name == "quiver" and ("hue" not in kwargs or ("add_guide" in kwargs and kwargs["add_guide"] is False)):
-            kwargs.pop("cbar_kwargs", None)
-            return func(self, data_or_crs, ax=ax, **kwargs)
-        elif func_name == "streamplot" and ("hue" not in kwargs or ("add_guide" in kwargs and kwargs["add_guide"] is False)):
-            kwargs.pop("cbar_kwargs", None)
-            return func(self, data_or_crs, ax=ax, **kwargs)
-        elif func_name == "grid" and (list(data_or_crs.dims)[0] != "mesh2d_nEdges" or ("add_colorbar" in kwargs and kwargs["add_colorbar"] is False)):
+        elif (
+            func_name == "imshow"
+            and ("add_colorbar" in kwargs and kwargs["add_colorbar"] is False)
+            or func_name == "pcolormesh"
+            and ("add_colorbar" in kwargs and kwargs["add_colorbar"] is False)
+            or func_name == "contour"
+            and ("add_colorbar" not in kwargs or kwargs["add_colorbar"] is False)
+            or func_name == "contourf"
+            and ("add_colorbar" in kwargs and kwargs["add_colorbar"] is False)
+            or func_name == "scatter"
+            and ("hue" not in kwargs or ("add_colorbar" not in kwargs or kwargs["add_colorbar"] is False))
+            or func_name == "quiver"
+            and ("hue" not in kwargs or ("add_guide" in kwargs and kwargs["add_guide"] is False))
+            or func_name == "streamplot"
+            and ("hue" not in kwargs or ("add_guide" in kwargs and kwargs["add_guide"] is False))
+            or func_name == "grid"
+            and (next(iter(data_or_crs.dims)) != "mesh2d_nEdges" or ("add_colorbar" in kwargs and kwargs["add_colorbar"] is False))
+        ):
             kwargs.pop("cbar_kwargs", None)
             return func(self, data_or_crs, ax=ax, **kwargs)
         elif func_name == "geometries" and (

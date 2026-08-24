@@ -96,7 +96,7 @@ def _substitute_inherit_str_in_dicts(dict1: dict, max_depth: int = 4) -> dict:
     if max_depth == 0:
         return dict1
 
-    for key1 in dict1:
+    for key1 in dict1:  # noqa: PLC0206
         # Check if value is a dictionary
         if not isinstance(dict1[key1], dict):
             continue
@@ -146,7 +146,7 @@ def get_crs_from_data_or_crs(data_or_crs: DATA_OR_CRS_TYPE = None) -> pyprojCRS 
 
     # Convert the crs to a pyproj.CRS
     if isinstance(crs, pyprojCRS):
-        crs = crs
+        crs = crs  # noqa: PLW0127
     elif isinstance(crs, rasterioCRS):
         crs = pyprojCRS.from_string(crs.to_string())
     elif isinstance(crs, str):

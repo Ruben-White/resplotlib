@@ -7,4 +7,4 @@ from .resplotclass import Resplotclass, rpc
 
 __version__ = importlib.metadata.version(__package__)
 
-__all__ = ["Guidelines", "Map", "Resplotclass", "rpc", "__cmaps__"]
+__all__ = ["Guidelines", "Map", "Resplotclass", "__cmaps__", "rpc"]

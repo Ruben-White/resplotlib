@@ -90,7 +90,7 @@ def to_structured(
             ds = ds.drop_vars(coord)
 
     # Replace mesh2d_nFaces dimension with idx dimension
-    idx_dim = [dim for dim in ds.dims if dim.startswith("mesh2d_")][0]
+    idx_dim = next(dim for dim in ds.dims if dim.startswith("mesh2d_"))
     ds = ds.rename({idx_dim: "idx"})
     ds["idx"] = range(len(ds["idx"]))
 
