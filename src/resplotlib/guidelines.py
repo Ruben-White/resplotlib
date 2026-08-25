@@ -108,6 +108,7 @@ class Guidelines(dict):
                 print(f"Guidelines metadata: {self['metadata']}")
             else:
                 print("Guidelines metadata: No metadata available.")
+            return
 
         # Set open/closed state
         open = "open" if open else "closed"
