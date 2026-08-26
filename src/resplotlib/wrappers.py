@@ -314,7 +314,7 @@ def rescale_wrapper(func: callable) -> callable:
         Args:
             self (:class:`Resplotclass <resplotlib.Resplotclass>`): The instance of the Resplotclass.
             data_or_crs (:class:`xarray.DataArray`, :class:`xarray.Dataset`, :class:`xugrid.UgridDataArray`, :class:`xugrid.UgridDataset`, :class:`geopandas.GeoDataFrame`, :class:`pyproj.CRS`, :class:`rasterio.CRS`, str, or None, optional): The data or CRS to be plotted. Defaults to None.
-            rescale_unit (str, optional): The unit to which the data or CRS should be rescaled. Defaults to None.
+            rescale_unit (str, optional): The unit to which the data or CRS should be rescaled. Set to "none" to disable rescaling. Defaults to None.
             **kwargs (dict, optional): Additional keyword arguments to be passed to the plotting function.
 
         Returns:

@@ -163,7 +163,7 @@ def get_rescale_parameters(
 
     Args:
         data_or_crs (:class:`xarray.DataArray` | :class:`xarray.Dataset` | :class:`xugrid.UgridDataArray` | :class:`xugrid.UgridDataset` | :class:`geopandas.GeoDataFrame` | :class:`pyproj.CRS` | :class:`rasterio.crs.CRS` | str | None): Data or coordinate reference system.
-        rescale_unit (str, optional): Desired rescale unit. Defaults to None.
+        rescale_unit (str, optional): Desired rescale unit. Set to "none" to disable rescaling. Defaults to None.
 
     Returns:
         tuple[str | None, float]: Rescale unit and scale factor.
@@ -217,6 +217,8 @@ def get_rescale_parameters(
     # Get rescale unit
     if crs_unit is None or crs_unit in SCALE_OTHERS:
         rescale_unit = None
+    elif rescale_unit == "none":
+        rescale_unit = crs_unit
     elif crs_unit in SCALE_METRES:
         rescale_unit = rescale_unit or "km"
     elif crs_unit in SCALE_DEGREES:
