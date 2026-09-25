@@ -1,0 +1,272 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "9b123413",
+   "metadata": {},
+   "source": [
+    "## Getting Started"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "75305461",
+   "metadata": {},
+   "source": [
+    "Welcome! This notebook aims to help you gain a foundational understanding of resplotlib. It covers the basics of how to use the `resplotclass`, which is the core class of resplotlib, and how to apply `guidelines` to your plots. By the end of this notebook, you should be able to create your own resilient plots using resplotlib. Let's get started!"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c4e96ec2",
+   "metadata": {},
+   "source": [
+    "### Resplotclass"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "507f94b1",
+   "metadata": {},
+   "source": [
+    "The `resplotclass` is the core class of resplotlib. It contains methods that wrap the plotting functionality of various other libraries, including [xarray](http://xarray.pydata.org/en/stable/), [xugrid](https://deltares.github.io/xugrid/), [geopandas](https://geopandas.org/), [contextily](https://contextily.readthedocs.io/en/latest/), [matplotlib](https://matplotlib.org/stable/index.html) and [ipyleaflet](https://ipyleaflet.readthedocs.io/en/latest/).\n",
+    "\n",
+    "To import the `resplotclass` (abbreviated as `rpc`), use the following code:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "5f549c48",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from resplotlib import rpc"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9de57ac3",
+   "metadata": {},
+   "source": [
+    "The `resplotclass` contains a `guidelines` attribute, which is a dictionary of dictionaries that contain keyword arguments (kwargs) that can be applied to the plotting methods of the resplotclass. These guidelines are designed to make it easier for users to create plots that are consistent with certain styles or extents. They can be applied in the plotting methods of the resplotclass by using the `style` and `extent` keywords. The resplotclass comes with default guidelines to make your plots more consistent and visually appealing. Depending on your project, you may want to apply certain styles or extents. This can be done by creating your own project guidelines and setting them to the `guidelines` attribute of the `resplotclass`. To find out more about guidelines, and how to specify, set and apply them, see the [Guidelines notebook](./02_guidelines.ipynb).\n",
+    "\n",
+    "To show the `guidelines` that are currently set in the `resplotclass`, use the following method:"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "585f7d6c",
+   "metadata": {},
+   "source": [
+    "### Guidelines"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "81f9e511",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rpc.show_guidelines()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e23d42c7",
+   "metadata": {},
+   "source": [
+    "### Supported Data Types"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c6e9ae67",
+   "metadata": {},
+   "source": [
+    "The `resplotclass` supports a variety of data types, including `xarray.DataArray`, `xarray.Dataset`, `xugri.UgridDataArray`, `xugrid.UgridDataset`, and `geopandas.GeoDataFrame`. These types contain both the data, metadata and coordinate reference system (CRS). Here, a CRS is added to the `xugrid.UgridDataArray` as it is generally not included in the netCDF file.\n",
+    "\n",
+    "To read the data required for this notebook, use the following code:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "992d8556",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Packages\n",
+    "from pathlib import Path\n",
+    "\n",
+    "import geopandas as gpd\n",
+    "import rioxarray as rxr\n",
+    "import xugrid as xu\n",
+    "\n",
+    "# Directories\n",
+    "dir_path_repo = next(p for p in Path.cwd().resolve().parents if p.name == \"resplotlib\")\n",
+    "dir_path_data = dir_path_repo / \"data\"\n",
+    "\n",
+    "# Read data\n",
+    "da_bathymetry = rxr.open_rasterio(dir_path_data / \"bathymetry.tif\").squeeze()\n",
+    "da_image = rxr.open_rasterio(dir_path_data / \"image.tif\").squeeze()\n",
+    "uds_model = xu.open_dataset(dir_path_data / \"model.nc\")\n",
+    "gdf_points = gpd.read_file(dir_path_data / \"points.geojson\")\n",
+    "gdf_lines = gpd.read_file(dir_path_data / \"shorelines.geojson\")\n",
+    "gdf_polygons = gpd.read_file(dir_path_data / \"polygons.geojson\")\n",
+    "\n",
+    "# Add a coordinate reference system (CRS)\n",
+    "uds_model.ugrid.set_crs(\"EPSG:32631\", allow_override=True)\n",
+    "\n",
+    "# Get bounds and limits\n",
+    "bounds = da_bathymetry.rio.bounds()\n",
+    "xlim = (bounds[0], bounds[2])\n",
+    "ylim = (bounds[1], bounds[3])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d86b893d",
+   "metadata": {},
+   "source": [
+    "### Static plotting"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f45903c7",
+   "metadata": {},
+   "source": [
+    "The `resplotclass` provides the following static plot methods: `imshow`, `pcolormesh`, `contourf`, `quiver`, `streamplot`, `geometries`, `basemap`. Moreover, the following methods are available to create a figure and axes, show the plot and save the plot: `figure`, `axes`, `show` and `save`. To find out more about static plotting, see the [Static plotting notebook](./03_static_plotting.ipynb).\n",
+    "\n",
+    "Here a figure and axes are created using the `figure` and `axes` methods of the `resplotclass`. The `imshow` method is used to plot an `xarray.DataArray` and `xugrid.UgridDataArray`, while the `geometries` method is used to plot a `geopandas.GeoDataFrame`. Basemaps are added to the axes using the `basemap` method. Finally, the plot is shown using the `show` method."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8dadf1fd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Initialise figure and axes\n",
+    "fig, axs = rpc.subplots(2, 2, figsize=(16, 10))\n",
+    "axs = axs.flatten()\n",
+    "\n",
+    "# Plot bathymetry\n",
+    "rpc.imshow(da=da_bathymetry, ax=axs[0], style=\"bathymetry\")\n",
+    "\n",
+    "# Plot image\n",
+    "rpc.imshow(da=da_image, ax=axs[1], style=\"image\")\n",
+    "\n",
+    "# Plot elevation\n",
+    "rpc.imshow(uda=uds_model[\"mesh2d_mor_bl\"], ax=axs[2], robust=True)\n",
+    "\n",
+    "# Plot geometries\n",
+    "rpc.geometries(gdf=gdf_points, ax=axs[3], color=\"blue\", label=\"Points\")\n",
+    "rpc.geometries(gdf=gdf_lines, ax=axs[3], column=\"year\", cmap=\"Spectral_r\", legend=True, legend_kwds={\"label\": \"Year [-]\"})\n",
+    "rpc.geometries(gdf=gdf_polygons, ax=axs[3], facecolor=\"none\", edgecolor=\"red\", label=\"Polygons\")\n",
+    "axs[3].legend(loc=\"upper right\")\n",
+    "\n",
+    "# Plot basemaps\n",
+    "for ax in axs:\n",
+    "    rpc.basemap(crs=\"EPSG:32631\", ax=ax, style=\"light\", xlim=xlim, ylim=ylim)\n",
+    "\n",
+    "# Show image\n",
+    "rpc.show(fig)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "80890670",
+   "metadata": {},
+   "source": [
+    "### Interactive plotting"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "da2ae3d3",
+   "metadata": {},
+   "source": [
+    "The `resplotclass` provides the following interactive plot methods: `explore_data`, `explore_geometries`, `explore_basemap`. Morever, the following methods are available to create a map, show the map and save the map: `Map`, `show` and `save`. The `Map` method creates an interactive map using `ipyleaflet`, which allows users to interact with the map and the plotted data. The `Map` method also contains a draw control layer, which allows users to interactively draw and edit geometries on the map. The map contain various methods to retrieve information about the map, such as the current view bounds, zoom level and drawn geometries. To find out more about interactive plotting, see the [Interactive plotting notebook](./04_interactive_plotting.ipynb).\n",
+    "\n",
+    "Here, the `Map` method is used to create a map. A `geopandas.GeoDataFrame` is supplied to the `Map` and set to the map's draw control layer. This is a layer in which the user can interactively draw and edit geometries. The `explore_data` method is used to plot an `xarray.DataArray` and `xugrid.UgridDataArray`, while the `explore_geometries` method is used to plot a `geopandas.GeoDataFrame`. Basemaps are added to the axes using the `explore_basemap` method. Finally, the map is shown using the `show` method.\n",
+    "\n",
+    "Next, current view bounds, zoom level and drawn geometries are retrieved from the map using the `get_view_bounds()`, `get_view_zoom_levels()` and `get_drawn_geometries()` methods of the `Map`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ebe53914",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Initialise map\n",
+    "m = rpc.Map(gdf=gdf_points)\n",
+    "\n",
+    "# Plot bathymetry\n",
+    "m = rpc.explore_data(da=da_bathymetry, m=m, style=\"bathymetry\", name=\"Bathymetry\", add_colorbar=True, cbar_kwargs={\"label\": \"Depth [m]\"})\n",
+    "\n",
+    "# Plot image\n",
+    "m = rpc.explore_data(da=da_image, m=m, style=\"image\", name=\"Image\")\n",
+    "\n",
+    "# Plot elevation\n",
+    "m = rpc.explore_data(da=uds_model[\"mesh2d_ucmag\"], m=m, name=\"Velocity magnitude\")\n",
+    "\n",
+    "# Plot geometries\n",
+    "m = rpc.explore_geometries(gdf=gdf_lines, m=m, column=\"year\", cmap=\"Spectral_r\", name=\"Shorelines\", legend=True, label=\"Year [-]\")\n",
+    "m = rpc.explore_geometries(gdf=gdf_polygons, m=m, name=\"Polygons\")\n",
+    "\n",
+    "# Plot basemaps\n",
+    "m = rpc.explore_basemap(m=m, style=\"satellite\")\n",
+    "\n",
+    "# Show map\n",
+    "rpc.show(m)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2191fdc6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Get view bounds\n",
+    "print(\"View bounds:\", m.get_view_bounds())\n",
+    "\n",
+    "# Get view zoom\n",
+    "print(\"View zoom:\", m.get_view_zoom())\n",
+    "\n",
+    "# Get drawn geometries\n",
+    "gdf_drawn = m.get_drawn_geometries()\n",
+    "\n",
+    "# Show drawn geometries\n",
+    "gdf_drawn.head()"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "resplotlib (3.12.13)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.13"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
