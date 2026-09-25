@@ -306,45 +306,6 @@ def overwrite_layer_wrapper(func: callable) -> callable:
     return wrapper
 
 
-def rescale_wrapper(func: callable) -> callable:
-    @functools.wraps(func)
-    def wrapper(self, data_or_crs: DATA_OR_CRS_TYPE = None, rescale_unit: str | None = None, **kwargs) -> plt.Axes:
-        """Wrapper to rescale data or CRS for plotting functions.
-
-        Args:
-            self (:class:`Resplotclass <resplotlib.Resplotclass>`): The instance of the Resplotclass.
-            data_or_crs (:class:`xarray.DataArray`, :class:`xarray.Dataset`, :class:`xugrid.UgridDataArray`, :class:`xugrid.UgridDataset`, :class:`geopandas.GeoDataFrame`, :class:`pyproj.CRS`, :class:`rasterio.CRS`, str, or None, optional): The data or CRS to be plotted. Defaults to None.
-            rescale_unit (str, optional): The unit to which the data or CRS should be rescaled. Set to "none" to disable rescaling. Defaults to None.
-            **kwargs (dict, optional): Additional keyword arguments to be passed to the plotting function.
-
-        Returns:
-            The result of the original function after rescaling.
-        """
-        # Get rescale parameters
-        rescale_unit, scale_factor = utils.get_rescale_parameters(data_or_crs, rescale_unit=rescale_unit)
-
-        # Rescale data or CRS
-        if isinstance(data_or_crs, xr.DataArray | xr.Dataset):
-            data_or_crs = rescale.rescale_da(data_or_crs, scale_factor)
-        elif isinstance(data_or_crs, xu.UgridDataArray | xu.UgridDataset):
-            data_or_crs = rescale.rescale_uda(data_or_crs, scale_factor)
-        elif isinstance(data_or_crs, gpd.GeoDataFrame):
-            data_or_crs = rescale.rescale_gdf(data_or_crs, scale_factor)
-
-        # Rescale xlim and ylim if provided
-        if "xlim" in kwargs and kwargs["xlim"] is not None:
-            xlim = kwargs["xlim"]
-            kwargs["xlim"] = (xlim[0] * scale_factor, xlim[1] * scale_factor)
-        if "ylim" in kwargs and kwargs["ylim"] is not None:
-            ylim = kwargs["ylim"]
-            kwargs["ylim"] = (ylim[0] * scale_factor, ylim[1] * scale_factor)
-
-        # Call original function
-        return func(self, data_or_crs, rescale_unit=rescale_unit, **kwargs)
-
-    return wrapper
-
-
 def skip_and_smooth_wrapper(func: callable) -> callable:
     @functools.wraps(func)
     def wrapper(self, data_or_crs: DATA_OR_CRS_TYPE = None, skip: int = 1, smooth: int = 1, **kwargs):
@@ -484,10 +445,10 @@ def format_axis_wrapper(func: callable) -> callable:
         # Get default xlabel and ylabel kwargs if not provided
         if xlabel_kwargs is None or ylabel_kwargs is None:
             # Get rescale parameters
-            rescale_unit, _ = utils.get_rescale_parameters(data_or_crs, rescale_unit=rescale_unit)
+            rescale_unit, scale_factor = rescale.get_rescale_parameters(data_or_crs, rescale_unit=rescale_unit)
 
             # Get x and y labels
-            xlabel, ylabel = utils.get_xy_labels(data_or_crs, rescale_unit=rescale_unit)
+            xlabel, ylabel = rescale.get_xy_labels(data_or_crs, rescale_unit=rescale_unit)
 
             # Set xlabel and ylabel kwargs if not provided
             if xlabel_kwargs is None:
@@ -503,14 +464,24 @@ def format_axis_wrapper(func: callable) -> callable:
         if grid_kwargs is None:
             grid_kwargs = {"visible": True, "alpha": 0.5}
 
+        # Set xlim and ylim for basemap if provided
+        if func_name == "basemap":
+            ax = kwargs.get("ax", None)
+            if xlim is not None:
+                ax.set_xlim(xlim)
+            if ylim is not None:
+                ax.set_ylim(ylim)
+
         # Call original function
-        if func_name in ["basemap"]:
-            p = func(self, data_or_crs, rescale_unit=rescale_unit, xlim=xlim, ylim=ylim, **kwargs)
-        else:
-            p = func(self, data_or_crs, **kwargs)
+        p = func(self, data_or_crs, **kwargs)
+
+        # Get axes
+        ax = p.axes
+
+        # Rescale axes
+        rescale.rescale_axis(ax, scale_factor=scale_factor)
 
         # Format axes
-        ax = p.axes
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
         ax.set_xlabel(**xlabel_kwargs)

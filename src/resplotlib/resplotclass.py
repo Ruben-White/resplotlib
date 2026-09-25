@@ -3,6 +3,7 @@ import gc
 import time
 from pathlib import Path
 
+import contextily as cx
 import geopandas as gpd
 import ipyleaflet
 import matplotlib.pyplot as plt
@@ -12,7 +13,7 @@ from IPython.display import display
 from pyproj import CRS as pyprojCRS
 from rasterio.crs import CRS as rasterioCRS
 
-from . import basemaps, convert, explore, geometries, map, utils, videos, wrappers
+from . import convert, explore, geometries, map, utils, videos, wrappers
 from .guidelines import Guidelines
 
 DIR_PATH_PACKAGE = Path(__file__).resolve().parent
@@ -86,7 +87,6 @@ class Resplotclass:
     @wrappers.format_args_wrapper
     @wrappers.guideline_wrapper
     @wrappers.initialise_fig_wrapper
-    @wrappers.rescale_wrapper
     @wrappers.skip_and_smooth_wrapper
     @wrappers.cbar_axis_wrapper
     @wrappers.show_kwargs_wrapper
@@ -147,7 +147,6 @@ class Resplotclass:
     @wrappers.format_args_wrapper
     @wrappers.guideline_wrapper
     @wrappers.initialise_fig_wrapper
-    @wrappers.rescale_wrapper
     @wrappers.skip_and_smooth_wrapper
     @wrappers.cbar_axis_wrapper
     @wrappers.show_kwargs_wrapper
@@ -208,7 +207,6 @@ class Resplotclass:
     @wrappers.format_args_wrapper
     @wrappers.guideline_wrapper
     @wrappers.initialise_fig_wrapper
-    @wrappers.rescale_wrapper
     @wrappers.skip_and_smooth_wrapper
     @wrappers.cbar_axis_wrapper
     @wrappers.show_kwargs_wrapper
@@ -269,7 +267,6 @@ class Resplotclass:
     @wrappers.format_args_wrapper
     @wrappers.guideline_wrapper
     @wrappers.initialise_fig_wrapper
-    @wrappers.rescale_wrapper
     @wrappers.skip_and_smooth_wrapper
     @wrappers.cbar_axis_wrapper
     @wrappers.show_kwargs_wrapper
@@ -330,7 +327,6 @@ class Resplotclass:
     @wrappers.format_args_wrapper
     @wrappers.guideline_wrapper
     @wrappers.initialise_fig_wrapper
-    @wrappers.rescale_wrapper
     @wrappers.skip_and_smooth_wrapper
     @wrappers.cbar_axis_wrapper
     @wrappers.show_kwargs_wrapper
@@ -385,16 +381,15 @@ class Resplotclass:
         if isinstance(ds, xr.Dataset):
             if "hue" not in kwargs and "color" not in kwargs:
                 kwargs.setdefault("color", "black")
-            return ds.plot.scatter(**kwargs)
+            return ds.plot.scatter(ax=ax, **kwargs)
         elif isinstance(ds, xu.UgridDataArray):
-            return ds.ugrid.plot.scatter(**kwargs)
+            return ds.ugrid.plot.scatter(ax=ax, **kwargs)
         else:
             raise TypeError("Data must be an xarray.Dataset or xugrid.UgridDataArray")
 
     @wrappers.format_args_wrapper
     @wrappers.guideline_wrapper
     @wrappers.initialise_fig_wrapper
-    @wrappers.rescale_wrapper
     @wrappers.skip_and_smooth_wrapper
     @wrappers.cbar_axis_wrapper
     @wrappers.show_kwargs_wrapper
@@ -462,7 +457,6 @@ class Resplotclass:
     @wrappers.format_args_wrapper
     @wrappers.guideline_wrapper
     @wrappers.initialise_fig_wrapper
-    @wrappers.rescale_wrapper
     @wrappers.skip_and_smooth_wrapper
     @wrappers.cbar_axis_wrapper
     @wrappers.show_kwargs_wrapper
@@ -528,7 +522,6 @@ class Resplotclass:
     @wrappers.format_args_wrapper
     @wrappers.guideline_wrapper
     @wrappers.initialise_fig_wrapper
-    @wrappers.rescale_wrapper
     @wrappers.skip_and_smooth_wrapper
     @wrappers.cbar_axis_wrapper
     @wrappers.show_kwargs_wrapper
@@ -600,7 +593,6 @@ class Resplotclass:
     @wrappers.format_args_wrapper
     @wrappers.guideline_wrapper
     @wrappers.initialise_fig_wrapper
-    @wrappers.rescale_wrapper
     @wrappers.cbar_axis_wrapper
     @wrappers.show_kwargs_wrapper
     @wrappers.format_axis_wrapper
@@ -651,7 +643,6 @@ class Resplotclass:
     @wrappers.format_args_wrapper
     @wrappers.guideline_wrapper
     @wrappers.initialise_fig_wrapper
-    @wrappers.rescale_wrapper
     @wrappers.show_kwargs_wrapper
     @wrappers.format_axis_wrapper
     def basemap(
@@ -694,8 +685,8 @@ class Resplotclass:
         Returns:
             :class:`matplotlib.axes.Axes`: The axes object of the plot.
         """
-
-        return basemaps.plot_basemap(crs, ax=ax, rescale_unit=rescale_unit, xlim=xlim, ylim=ylim, **kwargs)
+        cx.add_basemap(ax=ax, crs=crs, **kwargs)
+        return ax
 
     # Interactive plot methods
     @wrappers.format_args_wrapper
