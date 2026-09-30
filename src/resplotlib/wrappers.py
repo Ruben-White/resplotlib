@@ -154,6 +154,10 @@ def guideline_wrapper(func: callable) -> callable:
                 data_kwargs = {"cbar_kwargs": {"label": label}, "append_axes_kwargs": {"pad": 0.2, "position": "right", "size": 0.2}}
                 kwargs = utils._combine_dicts(data_kwargs, kwargs)  # Prioritise user-provided kwargs over data kwargs
 
+        # Set style to "image" if data is a 3D DataArray with a "band" dimension of size 3
+        if isinstance(data_or_crs, xr.DataArray) and data_or_crs.ndim == 3 and "band" in data_or_crs.dims and data_or_crs["band"].size == 3:
+            style = "image"
+
         # Get style kwargs from guidelines
         if style != "none":
             # Get function guidelines
